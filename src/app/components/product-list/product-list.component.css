@@ -1,0 +1,10 @@
+/* Hide the preview button by default */
+.preview-button {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Show the preview button when hovering over the product container */
+.product-container:hover .preview-button {
+  opacity: 1;
+}

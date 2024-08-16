@@ -1,0 +1,658 @@
+<div class="content-wrapper">
+  <div class="filter-sidebar">
+    <h4 class="filterColor">FILTERS</h4>
+
+    <div class="filter-group">
+      <p>Gender:</p>
+      <div class="filter-option" 
+      *ngFor="let gender of genders" 
+      (click)="applyFilter('gender', gender)"
+      [class.active]="isFilterActive('gender', gender)">
+   {{ gender }}
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <p>Brand:</p>
+      <mat-form-field appearance="fill">
+        <mat-label>Choose a brand</mat-label>
+        <mat-select (selectionChange)="applyFilter('brand', $event.value)">
+          <mat-option *ngFor="let brand of brands" [value]="brand">{{ brand }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="filter-group">
+      <p class="filter-by-price">FILTER BY PRICE</p>
+      <mat-slider min="{{ minPrice }}" max="{{ maxPrice }}" step="10">
+        <input matSliderStartThumb [(ngModel)]="priceRange[0]">
+        <input matSliderEndThumb [(ngModel)]="priceRange[1]">
+      </mat-slider>
+      <div class="price-display">
+        <p>Min: {{ priceRange[0] | currency }}</p>
+        <p>Max: {{ priceRange[1] | currency }}</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="applyPriceFilter()">
+        Apply Price Filter
+      </button>
+    </div>
+
+    <div class="active-filters">
+      <div *ngFor="let filter of selectedFilters" class="filter-tag">
+        {{ filter.type }}: {{ filter.value }}
+        <button (click)="removeFilter(filter)">x</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-list">
+    <div class="sort-options">
+      <mat-form-field>
+        <mat-label>Sort by</mat-label>
+        <mat-select [(value)]="selectedSort" (selectionChange)="applySorting()">
+          <mat-option *ngFor="let option of sortOptions" [value]="option">
+            {{ option }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-grid-list cols="4" rowHeight="1:1" gutterSize="16px">
+      <mat-grid-tile *ngFor="let product of pagedProducts">
+        <div class="product-item">
+          <div class="product-image-container">
+            <img class="product-image" [src]="product.imageUrl" alt="{{ product.name }}">
+            <button class="preview-button">PREVIEW</button>
+            <div *ngIf="product.availableQuantity === 0" class="out-of-stock">OUT OF STOCK</div>
+          </div>
+          <h2 class="product-brand">{{ product.brand }}</h2>
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-price">{{ product.price | currency }}</p>
+        </div>
+      </mat-grid-tile>
+    </mat-grid-list>
+    <mat-paginator [length]="filteredProducts.length"
+                   [pageSize]="pageSize"
+                   (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</div>
+css
+.content-wrapper {
+  display: flex;
+}
+
+.filter-sidebar {
+  width: 20%;
+  padding: 16px;
+  border-right: 1px solid #ccc;
+}
+
+.filterColor {
+  color: blue;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group p {
+  margin: 0;
+  font-weight: bold;
+  color: gray;
+}
+
+.filter-option {
+  cursor: pointer;
+  padding: 8px;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.filter-option:hover {
+  background-color: #ddd;
+}
+
+.filter-option.active {
+  font-weight: bold;
+}
+
+.filter-by-price {
+  color: blue;
+  font-weight: bold;
+}
+
+.product-list {
+  width: 80%;
+  padding: 16px;
+}
+
+.product-item {
+  margin: 2px;
+  text-align: left;
+  border: solid 1px #000;
+  border-radius: 8px;
+  height: 385px;
+  width: 385px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-image-container {
+  position: relative;
+  overflow: hidden;
+  height: 300;
+  width: 300;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+  transition: transform 0.3s;
+}
+
+.product-image-container:hover .product-image {
+  transform: scale(1.1);
+}
+
+.preview-button {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  opacity: 0;
+  transition: all 0.3s;
+}
+
+.product-image-container:hover .preview-button {
+  bottom: 20px;
+  opacity: 1;
+}
+
+.product-brand {
+  font-weight: lighter;
+  color: grey;
+  text-align: left;
+  margin-bottom: 0;
+  font-size: small;
+}
+
+.product-name {
+  font-weight: normal;
+  color: black;
+  text-align: left;
+  margin-bottom: 0;
+  font-size: medium;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-price {
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.out-of-stock {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  text-align: center;
+}
+
+.active-filters {
+  margin-top: 16px;
+}
+
+.filter-tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  padding: 4px 8px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.filter-tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.sort-options {
+  text-align: right;
+  margin-bottom: 16px;
+}
+i am using angular 17 to create a frontend fora ecommerce website i created a product-list component that have diffrent features here it's html
+<div class="content-wrapper">
+  <div class="filter-sidebar">
+    <h4 class="filterColor">FILTERS</h4>
+    <div class="filter-group">
+      <p>Gender:</p>
+      <div class="filter-option" 
+      *ngFor="let gender of genders" 
+      (click)="applyFilter('gender', gender)"
+      [class.active]="isFilterActive('gender', gender)">
+         {{ gender }}
+      </div>
+    </div>
+    <div class="filter-group">
+      <p>Brand:</p>
+      <mat-form-field appearance="fill">
+        <mat-label>Choose a brand</mat-label>
+        <mat-select (selectionChange)="applyFilter('brand', $event.value)">
+          <mat-option *ngFor="let brand of brands" [value]="brand">{{ brand }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="filter-group">
+      <p class="filter-by-price">FILTER BY PRICE</p>
+      <mat-slider min="{{ minPrice }}" max="{{ maxPrice }}" step="10">
+        <input matSliderStartThumb [(ngModel)]="priceRange[0]">
+        <input matSliderEndThumb [(ngModel)]="priceRange[1]">
+      </mat-slider>
+      <div class="price-display">
+        <p>Min: {{ priceRange[0] | currency }}</p>
+        <p>Max: {{ priceRange[1] | currency }}</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="applyPriceFilter()">
+        Apply Price Filter
+      </button>
+    </div>
+    <div class="active-filters">
+      <div *ngFor="let filter of selectedFilters" class="filter-tag">
+        {{ filter.type }}: {{ filter.value }}
+        <button (click)="removeFilter(filter)">x</button>
+      </div>
+    </div>
+  </div>
+  <div class="product-list">
+    <div class="sort-options">
+      <mat-form-field>
+        <mat-label>Sort by</mat-label>
+        <mat-select [(value)]="selectedSort" (selectionChange)="applySorting()">
+          <mat-option *ngFor="let option of sortOptions" [value]="option">
+            {{ option }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div *ngIf="pagedProducts.length > 0; else noProducts">
+      <mat-grid-list cols="4" rowHeight="1:1" gutterSize="16px">
+        <mat-grid-tile *ngFor="let product of pagedProducts">
+          <div class="product-item">
+            <div class="product-image-container">
+              <img class="product-image" [src]="product.imageUrl" alt="{{ product.name }}">
+              <button class="preview-button">PREVIEW</button>
+              <div *ngIf="product.availableQuantity === 0" class="out-of-stock">OUT OF STOCK</div>
+            </div>
+            <div class="product-details">
+              <h2 class="product-brand">{{ product.brand }}</h2>
+              <h3 class="product-name">{{ product.name }}</h3>
+              <p class="product-price">{{ product.price | currency }}</p>
+            </div>
+          </div>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </div>
+    <ng-template #noProducts>
+      <p>No products available</p>
+    </ng-template>
+    <mat-paginator [length]="filteredProducts.length"
+                   [pageSize]="pageSize"
+                   (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</div>
+it's css
+/* Parent Container Flexbox Setup */
+.content-wrapper {
+  display: flex;
+  margin: 40px auto;
+  max-width: 100%; /* For full width */
+  flex-wrap: wrap;
+}
+
+.filter-sidebar {
+  flex: 1;
+  padding: 16px;
+  max-width: 20%;
+  border-right: 1px solid #ccc;
+}
+
+.filterColor {
+  color: blue;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group p {
+  margin: 0;
+  font-weight: bold;
+  color: gray;
+}
+
+.filter-option {
+  cursor: pointer;
+  padding: 8px;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.filter-option:hover {
+  background-color: #ddd;
+}
+
+.filter-option.active {
+  font-weight: bold;
+}
+
+.filter-by-price {
+  color: blue;
+  font-weight: bold;
+}
+
+.active-filters {
+  margin-top: 16px;
+}
+
+.filter-tag {
+  display: inline-block;
+  background-color: #e0e0e0;
+  padding: 4px 8px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.filter-tag button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.sort-options {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+/* Product List Flexbox Grid */
+.product-list {
+  flex: 3;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-item {
+  margin: 8px;
+  padding: 8px;
+  border: solid 1px #eaeaea;
+  border-radius: 8px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-image-container {
+  position: relative;
+  overflow: hidden;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: scale-down;
+  transition: transform 0.3s;
+}
+
+.product-image-container:hover .product-image {
+  transform: scale(1.1);
+}
+
+.product-details {
+  padding: 8px;
+  text-align: left;
+}
+
+.product-brand, 
+.product-name, 
+.product-price {
+  margin: 0; /* Remove default margins */
+}
+
+.product-brand {
+  font-weight: lighter;
+  color: grey;
+  font-size: small;
+}
+
+.product-name {
+  font-weight: normal;
+  color: black;
+  font-size: medium;
+  white-space: normal; /* Allow breaking into multiple lines */
+}
+
+.product-price {
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.out-of-stock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  text-align: center;
+}
+.preview-button {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  opacity: 0;
+  transition: all 0.3s;
+  width: 80%;
+  height: 20%;
+}
+.product-image-container:hover .preview-button {
+  bottom: 0.5px;
+  opacity: 80%;
+}
+it's ts
+import { Component, OnInit } from '@angular/core';
+import { ProductService } from '../../services/product.service';
+import { Product, Sexe } from '../../entity/product';
+
+@Component({
+  selector: 'app-product-list',
+  templateUrl: './product-list.component.html',
+  styleUrls: ['./product-list.component.css']
+})
+export class ProductListComponent implements OnInit {
+  products: Product[] = [];
+  filteredProducts: Product[] = [];
+  pagedProducts: Product[] = [];
+  pageSize = 36; // 4 columns * 9 rows
+  currentPage = 0;
+  priceRange: number[] = [0, 1000];
+  minPrice = 0;
+  maxPrice = 10000;
+  genders = [Sexe.MALE, Sexe.FEMALE];
+  brands: string[] = [];
+  selectedFilters: { type: string; value: any }[] = [];
+  sortOptions = ['Price: Low to High', 'Price: High to Low'];
+  selectedSort = '';
+
+  constructor(private productService: ProductService) { }
+
+  ngOnInit(): void {
+    this.products = this.productService.getAllProducts();
+    console.log(this.products); // Ensure products are logged
+    this.filteredProducts = this.products;
+    this.brands = [...new Set(this.products.map(p => p.brand))];
+    this.updatePriceRange();
+    this.updatePagedProducts();
+  }
+
+  formatLabel(value: number): string {
+    return `${value}`;
+  }
+
+  isFilterActive(type: string, value: any): boolean {
+    return this.selectedFilters.some(f => f.type === type && f.value === value);
+  }
+
+  updatePriceRange() {
+    this.minPrice = Math.floor(Math.min(...this.products.map(p => p.price)));
+    this.maxPrice = Math.ceil(Math.max(...this.products.map(p => p.price)));
+    this.priceRange = [this.minPrice, this.maxPrice];
+  }
+
+  updatePagedProducts() {
+    const start = this.currentPage * this.pageSize;
+    const end = start + this.pageSize;
+    this.pagedProducts = this.filteredProducts.slice(start, end);
+  }
+
+  onPageChange(event: any) {
+    this.currentPage = event.pageIndex;
+    this.updatePagedProducts();
+  }
+
+  applyFilter(type: string, value: any) {
+    this.selectedFilters = this.selectedFilters.filter(f => f.type !== type);
+    this.selectedFilters.push({ type, value });
+    this.applyFilters();
+  }
+
+  removeFilter(filter: { type: string; value: any }) {
+    this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.filteredProducts = this.products.filter(product => {
+      return this.selectedFilters.every(filter => {
+        switch (filter.type) {
+          case 'gender':
+            return product.sexe === filter.value;
+          case 'brand':
+            return product.brand === filter.value;
+          case 'price':
+            return product.price >= filter.value[0] && product.price <= filter.value[1];
+          default:
+            return true;
+        }
+      });
+    });
+    this.applySorting();
+    this.updatePagedProducts();
+  }
+
+  applyPriceFilter() {
+    this.applyFilter('price', this.priceRange);
+  }
+
+  applySorting() {
+    if (this.selectedSort === 'Price: Low to High') {
+      this.filteredProducts.sort((a, b) => a.price - b.price);
+    } else if (this.selectedSort === 'Price: High to Low') {
+      this.filteredProducts.sort((a, b) => b.price - a.price);
+    }
+    this.updatePagedProducts();
+  }
+}
+olso for the product list i want the prduct to tke half of the hight of the product container and the other half should be taker by the text(brand,product name,price)olso for the product name if long i dont want it to take one line but to come back to a new line when it reach the product container edge, and olso all the text elements (brand,product name,price) need to be show and have no margin between them and for the image i want it to be shown all an not cropped or stretch and all the images should have the same size and be in the center of the image box(container)
+the problem that i have is that i want the filter and the product list to take the same width of the webpage as the components above them above here is the css of the component above them .brand-slider-wrapper { margin: 40px auto; max-width: 60%; }
+
+.brand-slider-container { position: relative; width: 100%; overflow: hidden; }
+
+.brand-slider-viewport { width: 100%; overflow: hidden; }
+
+.brand-slider { display: flex; transition: transform 0.3s ease; cursor: grab; user-select: none; }
+ .brand-slider:active { cursor: grabbing; }
+
+.brand-item { flex: 0 0 25%; text-align: center; padding: 0 5px; box-sizing: border-box; }
+
+.brand-logo-container { width: 200px; height: 200px; margin: 0 auto; border: 6px solid; border-image: linear-gradient(to right, #add8e6, #4b0082) 1; display: flex; align-items: center; justify-content: center; }
+
+.brand-logo { max-width: 170px; max-height: 170px; object-fit: contain; }
+
+.brand-name { font-weight: bold; display: block; margin-top: 10px; font-size: 14px; }
+
+.nav-button { position: absolute; top: 0; bottom: 0; width: 40px; background: white; color: black; border: none; font-size: 18px; cursor: pointer; z-index: 1; opacity: 0; transition: opacity 0.3s ease, background-color 0.3s ease; border-radius: 5px; }
+
+.brand-slider-container:hover .nav-button { opacity: 0.4; }
+
+.nav-button:hover { opacity: 0.8 !important; }
+
+.nav-button.left { left: 0; }
+
+.nav-button.right { right: 0; }
+
+.nav-button:disabled { opacity: 0; cursor: not-allowed; } .image-section { display: flex; justify-content: space-between; margin: 55px auto 0; /* Double the margin between brand slider and images, centered / max-width: 60%; / Match the max-width of the brand slider */ width: 100%; }
+
+.image-container { position: relative; width: calc(50% - 10px); /* 50% width minus half of the margin between images / height: 230px; / Adjust as needed */ overflow: hidden; }
+
+.section-image { width: 100%; height: 100%; object-fit: cover; }
+
+.image-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); /* Semi-dark filter */ }
+
+.image-title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: bold; text-align: center; z-index: 1; }
+
+@media (max-width: 767px) { .brand-slider-wrapper { max-width: 90%; } .brand-item { flex: 0 0 33.333%; }
+
+
+.brand-logo-container {
+  width: 100px;
+  height: 100px;
+}
+
+.brand-logo {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+.brand-name {
+  font-size: 12px;
+}
+.image-section {
+  flex-direction: column;
+  max-width: 90%; /* Match the max-width of the brand slider on mobile */
+}
+
+.image-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+to give you an idea of how i want it to look here is a link to a site that have the style of the product list that i want , i didnt the code you provided so you can make changes if need after taking a look at the website https://letresorduprince.com/product-category/montres-pour-hommes/ 

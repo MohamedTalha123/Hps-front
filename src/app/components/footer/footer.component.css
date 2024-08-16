@@ -1,0 +1,83 @@
+/* @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+footer {
+  background-color: #1c3a74;
+  color: white;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  transition: height 0.3s ease;
+
+  .container {
+    width: 80%;
+    margin: 0 auto;
+    transition: height 0.3s ease;
+
+  }
+
+  .border-b {
+    border-bottom-width: 1px;
+  }
+
+  .hover\:bg-gray-100:hover {
+    background-color: #f5f5f5;
+  }
+
+  .hover\:text-black:hover {
+    color: #000;
+  }
+
+  .hover\:bg-black:hover {
+    background-color: #000;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+  }
+
+  .absolute {
+    position: absolute;
+  }
+
+  .bg-blue-800 {
+    background-color: #1c3a74; 
+  }
+} */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+footer {
+  background-color: #1c3a74;
+  color: white;
+
+  .container {
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  .border-b {
+    border-bottom-width: 1px;
+  }
+
+  .hover\:bg-black:hover {
+    background-color: #000;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+  }
+
+  .absolute {
+    position: absolute;
+  }
+
+  /* .bg-blue-800 {
+    background-color: #1c3a74;
+  } */
+}

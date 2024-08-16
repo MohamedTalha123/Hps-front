@@ -1,0 +1,40 @@
+<div class="brand-slider-wrapper">
+  <div class="brand-slider-container">
+    <button class="nav-button left" (click)="scrollLeft()">&lt;</button>
+    <div class="brand-slider-viewport">
+      <div class="brand-slider" #slider
+           (mousedown)="onMouseDown($event)"
+           (mouseleave)="onMouseLeave()">
+        <!-- Cloned items at the end -->
+        <div class="brand-item" *ngFor="let brand of brands.slice(-itemsToShow)">
+          <div class="brand-logo-container">
+            <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
+          </div>
+          <span class="brand-name">{{ brand.name }}</span>
+        </div>
+        <!-- Original items -->
+        <div class="brand-item" *ngFor="let brand of brands">
+          <div class="brand-logo-container">
+            <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
+          </div>
+          <span class="brand-name">{{ brand.name }}</span>
+        </div>
+        <!-- Cloned items at the beginning -->
+        <div class="brand-item" *ngFor="let brand of brands.slice(0, itemsToShow)">
+          <div class="brand-logo-container">
+            <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
+          </div>
+          <span class="brand-name">{{ brand.name }}</span>
+        </div>
+      </div>
+    </div>
+    <button class="nav-button right" (click)="scrollRight()">&gt;</button>
+  </div>
+</div>
+<div class="image-section">
+  <div class="image-container" *ngFor="let item of imageItems">
+    <img [src]="item.imageUrl" [alt]="item.name" class="section-image">
+    <div class="image-overlay"></div>
+    <h2 class="image-title">{{ item.name }}</h2>
+  </div>
+</div>

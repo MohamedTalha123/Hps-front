@@ -1,0 +1,24 @@
+<!-- Content of the debug class (CSS) -->
+<style>
+    .debug {
+      outline: 1px solid red;
+    }
+  </style>
+  
+  <!-- Add debug classes to verify applied styles -->
+  <div class="p-4 debug">
+    <div class="border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col relative group w-64 debug">
+      <div class="relative overflow-hidden flex-grow debug">
+        <img src="https://via.placeholder.com/150" alt="Product" class="object-contain w-full h-32 transition-transform duration-300 group-hover:scale-110 debug">
+        <button class="absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100 debug">
+          PREVIEW
+        </button>
+      </div>
+      <div class="p-4 flex-shrink-0 debug">
+        <h2 class="text-sm text-blue-600">Brand</h2>
+        <h3 class="text-base font-medium line-clamp-2">Product Name</h3>
+        <p class="text-sm font-bold mt-2">$99.99</p>
+      </div>
+    </div>
+  </div>
+  

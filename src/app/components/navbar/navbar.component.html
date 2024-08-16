@@ -1,0 +1,86 @@
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur-sm transition-transform duration-300 ease-in-out" [ngClass]="{'transform -translate-y-full': isNavbarHidden}">
+  <div class="w-full flex justify-center">
+    <div class="container w-4/5 px-4">
+      <div class="flex justify-between items-center py-4">
+        <a href="#" class="flex items-center" (click)="selectOption('home')">
+          <img src="../../../assets/images/logo.png" class="h-12 w-auto mr-3" alt="Logo">
+          <span class="text-xl font-semibold">E-Commerce</span>
+        </a>
+
+        <button (click)="toggleNavbar()" class="lg:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+        </button>
+
+        <div class="hidden lg:flex lg:items-center lg:w-auto" [ngClass]="{'hidden': isMenuCollapsed, 'block': !isMenuCollapsed}">
+          <ul class="flex flex-col lg:flex-row lg:space-x-4">
+            <li><a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'home', 'text-black': selectedOption === 'home'}" (click)="selectOption('home')">HOME</a></li>
+            <li><a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'products', 'text-black': selectedOption === 'products'}" (click)="selectOption('products')">PRODUCTS</a></li>
+            <li><a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'men', 'text-black': selectedOption === 'men'}" (click)="selectOption('men')">FOR MEN</a></li>
+            <li><a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'women', 'text-black': selectedOption === 'women'}" (click)="selectOption('women')">FOR WOMEN</a></li>
+            <li class="relative" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
+              <a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'brands', 'text-black': selectedOption === 'brands'}" (click)="selectOption('brands')">BRANDS</a>
+              <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg py-2 z-10 transition-opacity duration-300"
+                   [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisible, 'opacity-100 visible': isBrandsDropdownVisible}">
+                <!-- Brand options -->
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('CASIO')">CASIO</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('OMEGA')">OMEGA</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('ROLEX')">ROLEX</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('FESTINA')">FESTINA</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('DANIEL HECHER')">DANIEL HECHER</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('YONGER & BRESSON')">YONGER & BRESSON</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('MORGAN')">MORGAN</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('PACO-RABANNE')">PACO-RABANNE</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('YEMA')">YEMA</a>
+                <a href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand('RHYTHM')">RHYTHM</a>
+              </div>
+            </li>
+            <li><a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'contact', 'text-black': selectedOption === 'contact'}" (click)="selectOption('contact')">CONTACT</a></li>
+          </ul>
+        </div>
+
+        <div class="hidden lg:flex items-center space-x-4">
+          <form class="flex">
+            <input type="search" placeholder="Search" class="px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button type="submit" class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Search</button>
+          </form>
+<!-- In your navbar template -->
+<!-- navbar.component.html -->
+<div class="relative" (mouseenter)="showCartDropdown()" (mouseleave)="hideCartDropdown()">
+  <a routerLink="/cart" class="text-gray-600 hover:text-gray-900 flex items-center" (click)="toggleCartDropdown(); $event.preventDefault()">
+    <i class="fas fa-shopping-basket"></i>
+    <span class="ml-1">{{ cartTotal | currency }}</span>
+    <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+      {{ cartItemsCount }}
+    </span>
+  </a>
+  <div class="absolute right-0 mt-2 w-80 bg-white shadow-lg py-2 z-10 transition-opacity duration-300"
+       [ngClass]="{'opacity-0 invisible': !isCartDropdownVisible, 'opacity-100 visible': isCartDropdownVisible}">
+    <div *ngFor="let item of cartItems" class="px-4 py-2 flex items-center justify-between border-b">
+      <div class="flex items-center">
+        <img [src]="item.product.imageUrl" alt="{{ item.product.name }}" class="w-12 h-12 object-cover mr-2">
+        <div>
+          <div class="font-semibold">{{ item.product.name }}</div>
+          <div class="text-sm text-gray-600">{{ item.quantity }} x {{ item.product.price | currency }}</div>
+        </div>
+      </div>
+      <button (click)="removeFromCart(item.product.id)" class="text-red-500 hover:text-red-700">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+    <div class="px-4 py-2 font-bold text-lg border-t">
+      Total: {{ cartTotal | currency }}
+    </div>
+    <div class="px-4 py-2">
+      <button routerLink="/cart" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW CART</button>
+      <button routerLink="/checkout" class="w-full px-4 py-2 bg-orange-500 text-white hover:bg-orange-600">CHECKOUT</button>
+    </div>
+  </div>
+</div>
+          <a href="#" class="text-gray-600 hover:text-gray-900">SIGN UP / LOG IN</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

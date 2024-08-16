@@ -1,0 +1,72 @@
+<footer class="bg-blue-800 text-white py-8">
+    <div class="container mx-auto w-4/5">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+  
+        <!-- ABOUT US Column -->
+        <div>
+          <h3 class="text-lg font-semibold pb-2 border-b border-gray-500">ABOUT US</h3>
+          <p class="mt-4 leading-relaxed">The E-COMMERCE located in the heart of CASABLANCA. We offer you a wide range of branded watches, for women, men, selected by our team of experts, always listening to the latest trends.</p>
+          <div class="flex space-x-4 mt-4">
+            <div class="relative group">
+              <a href="#" class="bg-blue-800 text-white p-2 rounded-full hover:bg-black"><i class="fab fa-facebook-f"></i></a>
+              <span class="opacity-0 group-hover:opacity-100 absolute mt-2 text-gray-300 text-xs bg-blue-800 py-1 px-2 rounded">Follow us on Facebook</span>
+            </div>
+            <div class="relative group">
+              <a href="#" class="bg-blue-800 text-white p-2 rounded-full hover:bg-black"><i class="fab fa-instagram"></i></a>
+              <span class="opacity-0 group-hover:opacity-100 absolute mt-2 text-gray-300 text-xs bg-blue-800 py-1 px-2 rounded">Follow us on Instagram</span>
+            </div>
+            <div class="relative group">
+              <a href="#" class="bg-blue-800 text-white p-2 rounded-full hover:bg-black"><i class="fas fa-envelope"></i></a>
+              <span class="opacity-0 group-hover:opacity-100 absolute mt-2 text-gray-300 text-xs bg-blue-800 py-1 px-2 rounded">Send Us an Email</span>
+            </div>
+          </div>
+        </div>
+  
+        <!-- MENU Column -->
+        <div>
+          <h3 class="text-lg font-semibold pb-2 border-b border-gray-500">MENU</h3>
+          <ul class="mt-4 space-y-2">
+            <li><a href="#" class="block pb-2 border-b border-gray-500">HOME</a></li>
+            <li><a href="#" class="block pb-2 border-b border-gray-500">PRODUCTS</a></li>
+            <li><a href="#" class="block pb-2 border-b border-gray-500">FOR MEN</a></li>
+            <li><a href="#" class="block pb-2 border-b border-gray-500">FOR WOMEN</a></li>
+            <li class="relative group" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
+              <a href="#" class="block pb-2 border-b border-gray-500">BRANDS</a>
+              <div #brandsDropdown 
+                   class="absolute left-0 bottom-full mb-2 w-48 bg-blue-800 shadow-lg py-2 z-10 transition-all duration-300"
+                   [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisibleInFooter, 'opacity-100 visible': isBrandsDropdownVisibleInFooter}">
+                <a href="#" class="block px-4 py-2 hover:bg-black">CASIO</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">OMEGA</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">ROLEX</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">FESTINA</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">DANIEL HECHER</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">YONGER & BRESSON</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">MORGAN</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">PACO-RABANNE</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">YEMA</a>
+                <a href="#" class="block px-4 py-2 hover:bg-black">RHYTHM</a>
+              </div>
+            </li>
+            <li><a href="#" class="block pb-2 border-b border-gray-500">CONTACT</a></li>
+          </ul>
+        </div>
+  
+        <!-- INFORMATION Column -->
+        <div>
+          <h3 class="text-lg font-semibold pb-2 border-b border-gray-500">INFORMATION</h3>
+          <ul class="mt-4 space-y-2">
+            <li><a href="#" class="block pb-2 border-b border-gray-500">Contact Us</a></li>
+            <li><a routerLink="/about-us" class="block pb-2 border-b border-gray-500">About</a></li>
+          </ul>
+        </div>
+  
+        <!-- ADDRESS Column -->
+        <div>
+          <h3 class="text-lg font-semibold pb-2 border-b border-gray-500">ADDRESS</h3>
+          <p class="mt-4 leading-relaxed">The E-Commerce Store<br>17 rue abdelkader mouftakire<br>Former Clemenceau;<br>Prince mly abdellah, CASABLANCA</p>
+        </div>
+  
+      </div>
+    </div>
+  </footer>
+  
