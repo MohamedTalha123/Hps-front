@@ -1,30 +1,31 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener, Renderer2 } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Renderer2, HostListener } from '@angular/core';
+import { BrandService } from '../../services/brand.service';
+import { Brand } from '../../entity/brand';
+import { Router } from '@angular/router';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-brand-slider',
   templateUrl: './brand-slider.component.html',
-  styleUrls: ['./brand-slider.component.css']
+  styleUrls: ['./brand-slider.component.css'],
+  animations: [
+    trigger('smoothTransition', [
+      transition('* => *', [
+        animate('0.5s cubic-bezier(0.25, 0.1, 0.25, 1)')
+      ])
+    ])
+  ]
 })
 export class BrandSliderComponent implements OnInit, AfterViewInit {
   @ViewChild('slider') sliderRef!: ElementRef;
-
-  brands = [
-    { name: 'CASIO', logo: '../../../assets/images/brand/casio.png' },
-    { name: 'OMEGA', logo: '../../../assets/images/brand/omega.png' },
-    { name: 'ROLEX', logo: '../../../assets/images/brand/rolex.png' },
-    { name: 'FESTINA', logo: '../../../assets/images/brand/festina.png' },
-    { name: 'DANIEL HECHTER', logo: '../../../assets/images/brand/daniel-hechter.png' },
-    { name: 'YONGER & BRESSON', logo: '../../../assets/images/brand/yonger-bresson.png' },
-    { name: 'MORGAN', logo: '../../../assets/images/brand/morgan.png' },
-    { name: 'PACO RABANNE', logo: '../../../assets/images/brand/paco-rabanne.png' },
-    { name: 'YEMA', logo: '../../../assets/images/brand/yema.png' },
-    { name: 'RHYTHM', logo: '../../../assets/images/brand/rhythm.png' },
-  ];
   imageItems = [
-    { name: 'MEN', imageUrl: '../../../assets/images/men watch.png' },
-    { name: 'WOMEN', imageUrl: '../../../assets/images/women watch.png' }
+    { name: 'MEN', imageUrl: '../../../assets/images/men watch.png', filter: 'MALE' },
+    { name: 'WOMEN', imageUrl: '../../../assets/images/women watch.png', filter: 'FEMALE' }
   ];
-
+  brands: Brand[] = [];
+  displayedBrands: Brand[] = [];
+  isLoading = false;
+  errorMessage = '';
 
   itemsToShow = 4;
   currentIndex = 0;
@@ -32,22 +33,42 @@ export class BrandSliderComponent implements OnInit, AfterViewInit {
   isDragging = false;
   startX = 0;
   startScrollLeft = 0;
-  isTransitioning = false;
+  currentTranslate = 0;
 
-  constructor(private renderer: Renderer2) { }
+  constructor(
+    private renderer: Renderer2,
+    private brandService: BrandService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.updateItemsToShow();
+    this.loadBrands();
   }
+
+  loadBrands(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.brandService.getAllBrands().subscribe(
+      (brands: Brand[]) => {
+        this.brands = brands;
+        this.updateDisplayedBrands();
+        this.isLoading = false;
+        setTimeout(() => {
+          this.calculateItemWidth();
+          this.updateSliderPosition(false);
+        });
+      },
+      error => {
+        console.error('Error loading brands:', error);
+        this.isLoading = false;
+        this.errorMessage = 'Failed to load brands. Please try again later.';
+      }
+    );
+  }
+
 
   ngAfterViewInit(): void {
-    this.calculateItemWidth();
-    this.updateSliderPosition(false);
-  }
-
-  @HostListener('window:resize')
-  onResize() {
-    this.updateItemsToShow();
     this.calculateItemWidth();
     this.updateSliderPosition(false);
   }
@@ -62,100 +83,126 @@ export class BrandSliderComponent implements OnInit, AfterViewInit {
   }
 
   scrollLeft(): void {
-    if (!this.isTransitioning) {
-      this.currentIndex--;
-      this.updateSliderPosition(true);
-    }
+    this.currentIndex--;
+    this.updateDisplayedBrands();
+    this.updateSliderPosition(true);
   }
 
   scrollRight(): void {
-    if (!this.isTransitioning) {
-      this.currentIndex++;
-      this.updateSliderPosition(true);
+    this.currentIndex++;
+    this.updateDisplayedBrands();
+    this.updateSliderPosition(true);
+  }
+
+  updateDisplayedBrands() {
+    const totalBrands = this.brands.length;
+    this.displayedBrands = [];
+    for (let i = -2; i <= this.itemsToShow + 1; i++) {
+      const index = ((this.currentIndex + i) % totalBrands + totalBrands) % totalBrands;
+      this.displayedBrands.push(this.brands[index]);
     }
   }
 
   private updateSliderPosition(animate: boolean): void {
     const sliderElement = this.sliderRef.nativeElement;
-    const totalItems = this.brands.length;
 
     if (animate) {
-      this.isTransitioning = true;
-      this.renderer.setStyle(sliderElement, 'transition', 'transform 0.3s ease');
+      this.renderer.setStyle(sliderElement, 'transition', 'transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)');
     } else {
       this.renderer.setStyle(sliderElement, 'transition', 'none');
     }
 
-    let newPosition = -this.currentIndex * this.itemWidth;
+    const newPosition = -2 * this.itemWidth;
     this.renderer.setStyle(sliderElement, 'transform', `translateX(${newPosition}px)`);
 
-    if (this.currentIndex < 0 || this.currentIndex >= totalItems) {
+    if (animate) {
       setTimeout(() => {
         this.renderer.setStyle(sliderElement, 'transition', 'none');
-        if (this.currentIndex < 0) {
-          this.currentIndex = totalItems - 1;
-        } else if (this.currentIndex >= totalItems) {
-          this.currentIndex = 0;
-        }
-        newPosition = -this.currentIndex * this.itemWidth;
+        this.currentIndex = ((this.currentIndex % this.brands.length) + this.brands.length) % this.brands.length;
+        this.updateDisplayedBrands();
         this.renderer.setStyle(sliderElement, 'transform', `translateX(${newPosition}px)`);
-
-        // Force a reflow before re-enabling transitions
-        sliderElement.offsetHeight;
-        this.renderer.setStyle(sliderElement, 'transition', 'transform 0.3s ease');
-        this.isTransitioning = false;
-      }, 300);
-    } else {
-      setTimeout(() => {
-        this.isTransitioning = false;
-      }, 300);
+      }, 500);
     }
   }
 
   onMouseDown(event: MouseEvent): void {
-    if (!this.isTransitioning) {
-      this.isDragging = true;
-      this.startX = event.pageX - this.sliderRef.nativeElement.offsetLeft;
-      this.startScrollLeft = this.currentIndex * this.itemWidth;
-      this.renderer.setStyle(this.sliderRef.nativeElement, 'cursor', 'grabbing');
-      this.renderer.setStyle(this.sliderRef.nativeElement, 'transition', 'none');
-    }
+    this.isDragging = true;
+    this.startX = event.clientX;
+    const sliderElement = this.sliderRef.nativeElement;
+    const transform = new WebKitCSSMatrix(window.getComputedStyle(sliderElement).transform);
+    this.startScrollLeft = transform.m41;
+    this.renderer.setStyle(sliderElement, 'transition', 'none');
+    this.renderer.setStyle(sliderElement, 'cursor', 'grabbing');
   }
 
-  @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     if (!this.isDragging) return;
     event.preventDefault();
-    const x = event.pageX - this.sliderRef.nativeElement.offsetLeft;
-    const walk = (x - this.startX) * 2;
-    let newPosition = this.startScrollLeft - walk;
-    const totalWidth = this.itemWidth * this.brands.length;
-
-    // Implement circular scrolling
-    if (newPosition < 0) {
-      newPosition += totalWidth;
-    } else if (newPosition >= totalWidth) {
-      newPosition -= totalWidth;
-    }
-
-    this.currentIndex = Math.round(newPosition / this.itemWidth);
-    this.renderer.setStyle(this.sliderRef.nativeElement, 'transform', `translateX(${-newPosition}px)`);
+    const x = event.clientX;
+    const walk = (x - this.startX);
+    const newPosition = this.startScrollLeft + walk;
+    this.renderer.setStyle(this.sliderRef.nativeElement, 'transform', `translateX(${newPosition}px)`);
   }
 
-  @HostListener('document:mouseup')
   onMouseUp(): void {
     if (!this.isDragging) return;
     this.isDragging = false;
-    this.renderer.setStyle(this.sliderRef.nativeElement, 'cursor', 'grab');
-    this.updateSliderPosition(true);
+    const sliderElement = this.sliderRef.nativeElement;
+    this.renderer.setStyle(sliderElement, 'cursor', 'grab');
+
+    const transform = new WebKitCSSMatrix(window.getComputedStyle(sliderElement).transform);
+    const currentPosition = transform.m41;
+
+    const movement = this.startScrollLeft - currentPosition;
+    const itemsMoved = Math.round(movement / this.itemWidth);
+
+    this.currentIndex += itemsMoved;
+    this.updateDisplayedBrands();
+
+    // Animate to the nearest full brand
+    const targetPosition = -2 * this.itemWidth;
+    this.animateToPosition(currentPosition, targetPosition);
+  }
+  private animateToPosition(start: number, end: number): void {
+    const sliderElement = this.sliderRef.nativeElement;
+    const duration = 500; // milliseconds
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const easeProgress = this.easeInOutCubic(progress);
+      const currentPosition = start + (end - start) * easeProgress;
+
+      this.renderer.setStyle(sliderElement, 'transform', `translateX(${currentPosition}px)`);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Animation complete, update the displayed brands if needed
+        this.currentIndex = ((this.currentIndex % this.brands.length) + this.brands.length) % this.brands.length;
+        this.updateDisplayedBrands();
+        this.renderer.setStyle(sliderElement, 'transform', `translateX(${end}px)`);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }
 
-  @HostListener('mouseleave')
+  private easeInOutCubic(t: number): number {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
   onMouseLeave(): void {
     if (this.isDragging) {
-      this.isDragging = false;
-      this.renderer.setStyle(this.sliderRef.nativeElement, 'cursor', 'grab');
-      this.updateSliderPosition(true);
+      this.onMouseUp();
     }
+  }
+
+  navigateToProductList(brand: Brand) {
+    this.router.navigate(['/products'], { queryParams: { brand: brand.name } });
+  }
+  navigateToGenderProducts(filter: string) {
+    this.router.navigate(['/products'], { queryParams: { gender: filter } });
   }
 }

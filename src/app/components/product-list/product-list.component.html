@@ -15,7 +15,7 @@
       <mat-form-field class="w-full">
         <mat-label>Choose a brand</mat-label>
         <mat-select (selectionChange)="applyFilter('brand', $event.value)">
-          <mat-option *ngFor="let brand of brands" [value]="brand">{{ brand }}</mat-option>
+          <mat-option *ngFor="let brand of brands" [value]="brand.name">{{ brand.name }}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
@@ -53,24 +53,24 @@
     </div>
     <div *ngIf="pagedProducts.length > 0; else noProducts" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <div *ngFor="let product of pagedProducts" 
-           class="product-container border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col relative"
-           [routerLink]="['/product', product.id]">
-        <div class="relative overflow-hidden flex-grow">
-          <img [src]="product.imageUrl" [alt]="product.name" class="product-image object-contain w-full h-full transition-transform duration-300 hover:scale-110">
-          <button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2"
-          (click)="openPreviewPopup(product); $event.stopPropagation(); $event.preventDefault();">
-            PREVIEW
-          </button>
-          <div *ngIf="product.availableQuantity === 0" class="absolute top-1/2 left-0 right-0 text-center bg-black bg-opacity-70 text-white py-2 transform -translate-y-1/2">
-            OUT OF STOCK
-          </div>
-        </div>
-        <div class="p-4 flex-shrink-0">
-          <h2 class="text-sm text-blue-600">{{ product.brand }}</h2>
-          <h3 class="text-base font-medium line-clamp-2">{{ product.name }}</h3>
-          <p class="text-sm font-bold mt-2">{{ product.price | currency }}</p>
-        </div>
-      </div>
+      class="product-container border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col relative"
+      [routerLink]="['/product', product.id]">
+   <div class="relative overflow-hidden flex-grow">
+     <img [src]="product.imageUrl" [alt]="product.name" class="product-image object-contain w-full h-full transition-transform duration-300 hover:scale-110">
+     <button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2"
+     (click)="openPreviewPopup(product); $event.stopPropagation(); $event.preventDefault();">
+       PREVIEW
+     </button>
+     <div *ngIf="product.availableQuantity === 0" class="absolute top-1/2 left-0 right-0 text-center bg-black bg-opacity-70 text-white py-2 transform -translate-y-1/2">
+       OUT OF STOCK
+     </div>
+   </div>
+   <div class="p-4 flex-shrink-0">
+     <h2 class="text-sm text-blue-600">{{ product.brandName }}</h2>
+     <h3 class="text-base font-medium line-clamp-2">{{ product.name }}</h3>
+     <p class="text-sm font-bold mt-2">{{ product.price | currency }}</p>
+   </div>
+ </div>
     </div>
     <ng-template #noProducts>
       <p class="text-center text-gray-500">No products available</p>

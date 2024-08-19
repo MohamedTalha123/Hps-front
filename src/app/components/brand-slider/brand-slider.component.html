@@ -2,27 +2,18 @@
   <div class="brand-slider-container">
     <button class="nav-button left" (click)="scrollLeft()">&lt;</button>
     <div class="brand-slider-viewport">
-      <div class="brand-slider" #slider
+      <div class="brand-slider"
+      #slider
+             (mousedown)="onMouseDown($event)"
+             (mouseleave)="onMouseLeave()">>
+         <!-- #slider
            (mousedown)="onMouseDown($event)"
-           (mouseleave)="onMouseLeave()">
-        <!-- Cloned items at the end -->
-        <div class="brand-item" *ngFor="let brand of brands.slice(-itemsToShow)">
+           (mousemove)="onMouseMove($event)"
+           (mouseup)="onMouseUp()"
+           (mouseleave)="onMouseLeave()"> -->
+        <div class="brand-item" *ngFor="let brand of displayedBrands">
           <div class="brand-logo-container">
-            <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
-          </div>
-          <span class="brand-name">{{ brand.name }}</span>
-        </div>
-        <!-- Original items -->
-        <div class="brand-item" *ngFor="let brand of brands">
-          <div class="brand-logo-container">
-            <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
-          </div>
-          <span class="brand-name">{{ brand.name }}</span>
-        </div>
-        <!-- Cloned items at the beginning -->
-        <div class="brand-item" *ngFor="let brand of brands.slice(0, itemsToShow)">
-          <div class="brand-logo-container">
-            <img [src]="brand.logo" [alt]="brand.name" class="brand-logo">
+            <img [src]="brand.imageUrl" [alt]="brand.name" class="brand-logo" (click)="navigateToProductList(brand)">
           </div>
           <span class="brand-name">{{ brand.name }}</span>
         </div>
@@ -31,10 +22,10 @@
     <button class="nav-button right" (click)="scrollRight()">&gt;</button>
   </div>
 </div>
-<div class="image-section">
-  <div class="image-container" *ngFor="let item of imageItems">
-    <img [src]="item.imageUrl" [alt]="item.name" class="section-image">
-    <div class="image-overlay"></div>
-    <h2 class="image-title">{{ item.name }}</h2>
+<div class="flex flex-col md:flex-row justify-between mt-[55px] mx-auto max-w-[90%] md:max-w-4/5 w-full">
+  <div class="relative w-full md:w-[calc(50%-10px)] h-[270px] overflow-hidden cursor-pointer group mb-5 md:mb-0" *ngFor="let item of imageItems" (click)="navigateToGenderProducts(item.filter)">
+    <img [src]="item.imageUrl" [alt]="item.name" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <h2 class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-center z-10 group-hover:underline">{{ item.name }}</h2>
   </div>
 </div>

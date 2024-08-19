@@ -1,34 +1,4 @@
-// // src/app/entity/product.ts
-
-// export enum Sexe {
-//     MALE = 'MALE',
-//     FEMALE = 'FEMALE',
-//     UNISEX = 'UNISEX'
-//   }
-  
-//   export class Product {
-//     constructor(
-//       public id: string,
-//       public name: string,
-//       public description: string,
-//       public availableQuantity: number,
-//       public price: number,
-//       public imageUrl: string,
-//       public sexe: Sexe,
-//       public brand: string
-//     ) {}
-//   }
-  // src/app/models/product.model.ts
-
-import { Brand } from './brand';
-
-export enum Sexe {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-  UNISEX = 'UNISEX'
-}
-
-export class Product {
+export interface Product {
   id: number;
   name: string;
   description: string;
@@ -37,19 +7,37 @@ export class Product {
   price: number;
   imageUrl: string;
   sexe: Sexe;
-  brand: Brand;
+  brandId: number;
+  brandName: string;
+  brandDescription: string;
+}
 
-  constructor(id: number, name: string, description: string, reference: string, 
-              availableQuantity: number, price: number, imageUrl: string, 
-              sexe: Sexe, brand: Brand) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.reference = reference;
-    this.availableQuantity = availableQuantity;
-    this.price = price;
-    this.imageUrl = imageUrl;
-    this.sexe = sexe;
-    this.brand = brand;
-  }
+export interface ProductRequest {
+  name: string;
+  description: string;
+  availableQuantity: number;
+  price: number;
+  imageUrl: string;
+  sexe: Sexe;
+  brandId: number;
+}
+
+export interface ProductResponse {
+  id: number;
+  description: string;
+  reference: string;
+  name: string;
+  availableQuantity: number;
+  price: number;
+  imageUrl: string;
+  sexe: Sexe;
+  brandId: number;
+  brandName: string;
+  brandDescription: string;
+}
+
+export enum Sexe {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  UNISEX = 'UNISEX'
 }

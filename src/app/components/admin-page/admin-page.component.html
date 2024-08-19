@@ -1,0 +1,113 @@
+<div class="container mx-auto p-4 mt-20"> <!-- Added mt-20 for top margin -->
+    <h1 class="text-2xl font-bold mb-4 text-center">Admin Dashboard</h1>
+  
+    <!-- Centered tab selection -->
+    <div class="flex justify-center mb-8">
+      <div class="inline-flex rounded-md shadow-sm" role="group">
+        <button (click)="activeTab = 'brands'" 
+                [ngClass]="{'bg-blue-500 text-white': activeTab === 'brands', 'bg-gray-200 text-gray-700': activeTab !== 'brands'}" 
+                class="px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-200 hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-white">
+          Brands
+        </button>
+        <button (click)="activeTab = 'products'" 
+                [ngClass]="{'bg-blue-500 text-white': activeTab === 'products', 'bg-gray-200 text-gray-700': activeTab !== 'products'}" 
+                class="px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-200 hover:bg-blue-600 hover:text-white focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-white">
+          Products
+        </button>
+      </div>
+    </div>
+  
+    <div *ngIf="activeTab === 'brands'">
+      <h2 class="text-xl font-semibold mb-2">Brands</h2>
+      <button (click)="openAddBrandModal()" class="bg-green-500 text-white px-4 py-2 rounded mb-4">Add Brand</button>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-black text-white">
+            <th class="border p-2">Image</th>
+            <th class="border p-2">Name</th>
+            <th class="border p-2">Description</th>
+            <th class="border p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let brand of brands">
+            <td class="border p-2"><img [src]="brand.imageUrl" alt="{{ brand.name }}" class="w-16 h-16 object-cover"></td>
+            <td class="border p-2">{{ brand.name }}</td>
+            <td class="border p-2">{{ brand.description }}</td>
+            <td class="border p-2">
+              <button (click)="openUpdateBrandModal(brand)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Update</button>
+              <button (click)="deleteBrand(brand.id)" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <div *ngIf="activeTab === 'products'">
+      <h2 class="text-xl font-semibold mb-2">Products</h2>
+      <button (click)="openAddProductModal()" class="bg-green-500 text-white px-4 py-2 rounded mb-4">Add Product</button>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-black text-white">
+            <th class="border p-2">Image</th>
+            <th class="border p-2">Name</th>
+            <th class="border p-2">Description</th>
+            <th class="border p-2">Price</th>
+            <th class="border p-2">Brand</th>
+            <th class="border p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td class="border p-2"><img [src]="product.imageUrl" alt="{{ product.name }}" class="w-16 h-16 object-cover"></td>
+            <td class="border p-2">{{ product.name }}</td>
+            <td class="border p-2">{{ product.description }}</td>
+            <td class="border p-2">{{ product.price | currency }}</td>
+            <td class="border p-2">{{ product.brandName }}</td>
+            <td class="border p-2">
+              <button (click)="openUpdateProductModal(product)" class="bg-blue-500 text-white px-2 py-1 rounded mr-2">Update</button>
+              <button (click)="deleteProduct(product.id)" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Add/Update Brand Modal -->
+  <div *ngIf="showBrandModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <h3 class="text-lg font-semibold mb-4">{{ editingBrand ? 'Update' : 'Add' }} Brand</h3>
+      <form (ngSubmit)="saveBrand()">
+        <input [(ngModel)]="currentBrand.name" name="name" placeholder="Brand Name" class="w-full p-2 mb-2 border rounded">
+        <input [(ngModel)]="currentBrand.description" name="description" placeholder="Description" class="w-full p-2 mb-2 border rounded">
+        <input [(ngModel)]="currentBrand.imageUrl" name="imageUrl" placeholder="Image URL" class="w-full p-2 mb-2 border rounded">
+        <div class="flex justify-end">
+          <button type="button" (click)="closeBrandModal()" class="bg-gray-300 px-4 py-2 rounded mr-2">Cancel</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Add/Update Product Modal -->
+  <div *ngIf="showProductModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <h3 class="text-lg font-semibold mb-4">{{ editingProduct ? 'Update' : 'Add' }} Product</h3>
+      <form (ngSubmit)="saveProduct()">
+        <input [(ngModel)]="currentProduct.name" name="name" placeholder="Product Name" class="w-full p-2 mb-2 border rounded">
+        <input [(ngModel)]="currentProduct.description" name="description" placeholder="Description" class="w-full p-2 mb-2 border rounded">
+        <input [(ngModel)]="currentProduct.price" name="price" type="number" placeholder="Price" class="w-full p-2 mb-2 border rounded">
+        <input [(ngModel)]="currentProduct.availableQuantity" name="availableQuantity" type="number" placeholder="Available Quantity" class="w-full p-2 mb-2 border rounded">
+        <input [(ngModel)]="currentProduct.imageUrl" name="imageUrl" placeholder="Image URL" class="w-full p-2 mb-2 border rounded">
+        <select [(ngModel)]="currentProduct.brandId" name="brandId" class="w-full p-2 mb-2 border rounded">
+          <option *ngFor="let brand of brands" [value]="brand.id">{{ brand.name }}</option>
+        </select>
+        <div class="flex justify-end">
+          <button type="button" (click)="closeProductModal()" class="bg-gray-300 px-4 py-2 rounded mr-2">Cancel</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  

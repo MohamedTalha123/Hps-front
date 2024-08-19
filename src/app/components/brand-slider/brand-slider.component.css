@@ -1,166 +1,99 @@
 .brand-slider-wrapper {
-    margin: 40px auto;
-    max-width: 80%;
-  }
-  
-  .brand-slider-container {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-  }
-  
-  .brand-slider-viewport {
-    width: 100%;
-    overflow: hidden;
-  }
-  
-  .brand-slider {
-    display: flex;
-    transition: transform 0.3s ease;
-    cursor: grab;
-  user-select: none;
-  }
-  .brand-slider:active {
-    cursor: grabbing;
-  }
-  
-  .brand-item {
-    flex: 0 0 25%;
-    text-align: center;
-    padding: 0 5px;
-    box-sizing: border-box;
-  }
-  
-  .brand-logo-container {
-    width: 300px;
-    height: 300px;
-    margin: 0 auto;
-    border: 10px solid;
-    border-image: linear-gradient(to right, #add8e6, #4b0082) 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .brand-logo {
-    max-width: 250px;
-    max-height: 250px;
-    object-fit: contain;
-  }
-  
-  .brand-name {
-    font-weight: bold;
-    display: block;
-    margin-top: 10px;
-    font-size: 14px;
-  }
-  
-  .nav-button {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 40px;
-    background: white;
-    color: black;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.3s ease, background-color 0.3s ease;
-    border-radius: 5px;
-  }
-  
-  .brand-slider-container:hover .nav-button {
-    opacity: 0.4;
-  }
-  
-  .nav-button:hover {
-    opacity: 0.8 !important;
-  }
-  
+  @apply mx-auto max-w-[80%] my-10;
+}
+
+.brand-slider-container {
+  @apply relative w-full overflow-hidden;
+}
+
+.brand-slider-viewport {
+  @apply w-full overflow-hidden;
+}
+
+.brand-slider {
+  @apply flex transition-transform duration-300 ease-in-out cursor-grab select-none;
+}
+
+.brand-slider:active {
+  @apply cursor-grabbing;
+}
+
+.brand-item {
+  @apply flex-none w-1/4 text-center px-1 box-border;
+  cursor: pointer;
+}
+
+.brand-logo-container {
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  border: 10px solid;
+  border-image: linear-gradient(to right, #add8e6, #4b0082) 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo {
+  max-width: 250px;
+  max-height: 250px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+
+
+
+.brand-name {
+  @apply font-bold block mt-[10px] text-sm;
+}
+
+.nav-button {
+  @apply absolute top-0 bottom-0 w-[40px] bg-white text-black border-none text-lg cursor-pointer z-10 opacity-0 transition-all duration-300 ease-in-out rounded;
+}
+
+.brand-slider-container:hover .nav-button {
+  opacity: 0.6;
+}
+
+.nav-button:hover {
+  opacity: 1 !important;
+}
+
   .nav-button.left {
     left: 0;
   }
-  
+
   .nav-button.right {
     right: 0;
   }
-  
+
   .nav-button:disabled {
     opacity: 0;
     cursor: not-allowed;
   }
-  .image-section {
-    display: flex;
-    justify-content: space-between;
-    margin: 55px auto 0; /* Double the margin between brand slider and images, centered */
-    max-width: 80%; /* Match the max-width of the brand slider */
-    width: 100%;
+
+@media (max-width: 767px) {
+  .brand-slider-wrapper {
+    @apply max-w-[90%];
   }
-  
-  .image-container {
-    position: relative;
-    width: calc(50% - 10px); /* 50% width minus half of the margin between images */
-    height: 270px; /* Adjust as needed */
-    overflow: hidden;
+  .brand-slider {
+    @apply gap-[15px];
   }
-  
-  .section-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+
+  .brand-item {
+    @apply w-1/3;
   }
-  
-  .image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-dark filter */
+
+  .brand-logo-container {
+    @apply w-[100px] h-[100px];
   }
-  
-  .image-title {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    z-index: 1;
+
+  .brand-logo {
+    @apply max-w-[80px] max-h-[80px];
   }
-  
-  
-  @media (max-width: 767px) {
-    .brand-slider-wrapper {
-      max-width: 90%;
-    }
-    .brand-item {
-      flex: 0 0 33.333%;
-    }
-  
-    .brand-logo-container {
-      width: 100px;
-      height: 100px;
-    }
-  
-    .brand-logo {
-      max-width: 80px;
-      max-height: 80px;
-    }
-  
-    .brand-name {
-      font-size: 12px;
-    }
-    .image-section {
-      flex-direction: column;
-      max-width: 90%; /* Match the max-width of the brand slider on mobile */
-    }
-  
-    .image-container {
-      width: 100%;
-      margin-bottom: 20px;
-    }
+
+  .brand-name {
+    @apply text-xs;
   }
+}

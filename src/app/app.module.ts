@@ -31,6 +31,8 @@ import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CartService } from './services/cart.service';
+import { HttpClientModule } from '@angular/common/http';
+import { AdminPageComponent } from './components/admin-page/admin-page.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +52,7 @@ import { CartService } from './services/cart.service';
     AboutUsComponent,
     CartComponent,
     CheckoutComponent,
+    AdminPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,7 +68,8 @@ import { CartService } from './services/cart.service';
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [
     provideClientHydration(),

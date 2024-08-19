@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
-import { Product, Sexe } from '../../entity/product';
+import { Product, Sexe,ProductResponse } from '../../entity/product';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductPreviewPopupComponent } from '../product-preview-popup/product-preview-popup.component';
-import { ProductPageComponent } from '../product-page/product-page.component';
-import { BrandService } from "../../services/brand.service";
-
 import { Router } from '@angular/router';
+import { BrandService } from "../../services/brand.service";
 import { Brand } from '../../entity/brand';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
@@ -18,7 +17,7 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   pagedProducts: Product[] = [];
-  pageSize = 36; // 4 columns * 9 rows
+  pageSize = 36;
   currentPage = 0;
   priceRange: number[] = [0, 1000];
   minPrice = 0;
@@ -29,22 +28,50 @@ export class ProductListComponent implements OnInit {
   sortOptions = ['Price: Low to High', 'Price: High to Low'];
   selectedSort = '';
 
-  constructor(    private productService: ProductService,
-    private dialog: MatDialog,    private router: Router, private brandService : BrandService
+  constructor(
+    private productService: ProductService,
+    private dialog: MatDialog,
+    private router: Router,
+    private brandService: BrandService,
+    private route: ActivatedRoute
+
   ) { }
 
   ngOnInit(): void {
-    this.productService.getAllProducts().subscribe(products => {
-      this.products = products;
-      this.filteredProducts = this.products;
-      this.updatePriceRange();
-      this.updatePagedProducts();
-    });    
-    this.brandService.getAllBrands().subscribe(brands => {
-      this.brands = brands;
+    this.loadProducts();
+    this.loadBrands();
+    this.route.queryParams.subscribe(params => {
+      if (params['brand']) {
+        this.applyFilter('brand', params['brand']);
+      }
+      if (params['gender']) {
+        this.applyFilter('gender', params['gender']);
+      }
+      if (params['search']) {
+        this.applyFilter('search', params['search']);
+      }
     });
-        console.log(this.products); // Ensure products are logged
-    this.brands = [...new Set(this.products.map(p => p.brand))];
+  }
+  loadProducts(): void {
+    this.productService.getAllProducts().subscribe(
+      products => {
+        this.products = products;
+        console.log('Products received:', products);
+        this.filteredProducts = this.products;
+        this.updatePriceRange();
+        this.updatePagedProducts();
+      },
+      error => console.error('Error loading products:', error)
+    );
+  }
+
+  loadBrands(): void {
+    this.brandService.getAllBrands().subscribe(
+      brands => {
+        this.brands = brands;
+      },
+      error => console.error('Error loading brands:', error)
+    );
   }
 
   formatLabel(value: number): string {
@@ -73,8 +100,12 @@ export class ProductListComponent implements OnInit {
   }
 
   applyFilter(type: string, value: any) {
-    this.selectedFilters = this.selectedFilters.filter(f => f.type !== type);
-    this.selectedFilters.push({ type, value });
+    const existingFilterIndex = this.selectedFilters.findIndex(f => f.type === type);
+    if (existingFilterIndex !== -1) {
+      this.selectedFilters[existingFilterIndex].value = value;
+    } else {
+      this.selectedFilters.push({ type, value });
+    }
     this.applyFilters();
   }
 
@@ -82,7 +113,6 @@ export class ProductListComponent implements OnInit {
     this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
     this.applyFilters();
   }
-
   applyFilters() {
     this.filteredProducts = this.products.filter(product => {
       return this.selectedFilters.every(filter => {
@@ -90,9 +120,11 @@ export class ProductListComponent implements OnInit {
           case 'gender':
             return product.sexe === filter.value;
           case 'brand':
-            return product.brand === filter.value;
+            return product.brandName.toLowerCase() === filter.value.toLowerCase();
           case 'price':
             return product.price >= filter.value[0] && product.price <= filter.value[1];
+          case 'search':
+            return product.name.toLowerCase().includes(filter.value.toLowerCase());
           default:
             return true;
         }

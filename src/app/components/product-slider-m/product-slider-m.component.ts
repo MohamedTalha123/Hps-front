@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener, Renderer2 } from '@angular/core';
 import { ProductService } from '../../services/product.service';
-import { Product } from '../../entity/product';
+import { ProductResponse } from '../../entity/product';
 import { ProductPreviewPopupComponent } from '../product-preview-popup/product-preview-popup.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
 export class ProductSliderMComponent implements OnInit, AfterViewInit {
   @ViewChild('slider') sliderRef!: ElementRef;
 
-  MaleProduts: Product[] = [];
-  displayProducts: Product[] = [];
+  MaleProduts: ProductResponse[] = [];
+  displayProducts: ProductResponse[] = [];
   itemsToShow = 4;
   currentIndex = 0;
   itemWidth = 0;
@@ -35,8 +35,7 @@ export class ProductSliderMComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.productService.getAllProducts().subscribe(
       products => {
-        this.MaleProduts = products.filter(product => product.sexe === 'MALE');
-        this.updateItemsToShow();
+        this.MaleProduts = products.filter(product => product.sexe === 'MALE');        this.updateItemsToShow();
         this.updateDisplayProducts();
       },
       error => console.error('Error fetching products:', error)
@@ -88,14 +87,14 @@ export class ProductSliderMComponent implements OnInit, AfterViewInit {
     }
   }
 
-  openPreviewPopup(product: Product) {
+  openPreviewPopup(product: ProductResponse) {
     this.dialog.open(ProductPreviewPopupComponent, {
       data: product,
       width: '800px'
     });
   }
 
-  navigateToProductPage(product: Product) {
+  navigateToProductPage(product: ProductResponse) {
     this.router.navigate(['/product', product.id]);
   }
 

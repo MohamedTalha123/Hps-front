@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Product } from '../../entity/product';
+import { ProductResponse } from '../../entity/product';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -14,10 +14,10 @@ export class ProductPreviewPopupComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ProductPreviewPopupComponent>,
-    @Inject(MAT_DIALOG_DATA) public product: Product,
+    @Inject(MAT_DIALOG_DATA) public product: ProductResponse,
     private cartService: CartService
-
   ) {}
+
 
   increaseQuantity() {
     if (this.quantity < this.product.availableQuantity) {

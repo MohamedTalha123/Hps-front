@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener, Renderer2 } from '@angular/core';
 import { ProductService } from '../../services/product.service';
-import { Product } from '../../entity/product';
+import { ProductResponse } from '../../entity/product';
 import { ProductPreviewPopupComponent } from '../product-preview-popup/product-preview-popup.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
 export class ProductSliderComponent implements OnInit, AfterViewInit {
   @ViewChild('slider') sliderRef!: ElementRef;
 
-  casioProducts: Product[] = [];
-  displayProducts: Product[] = [];
+  casioProducts: ProductResponse[] = [];
+  displayProducts: ProductResponse[] = [];
   itemsToShow = 4;
   currentIndex = 0;
   itemWidth = 0;
@@ -35,7 +35,7 @@ export class ProductSliderComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.productService.getAllProducts().subscribe(
       products => {
-        this.casioProducts = products.filter(product => product.brand.name === 'CASIO');
+        this.casioProducts = products.filter(product => product.brandName === 'CASIO');
         this.updateItemsToShow();
         this.updateDisplayProducts();
       },
@@ -88,16 +88,14 @@ export class ProductSliderComponent implements OnInit, AfterViewInit {
     }
   }
 
-  openPreviewPopup(product: Product) {
+ 
+  openPreviewPopup(product: ProductResponse) {
     this.dialog.open(ProductPreviewPopupComponent, {
       data: product,
       width: '800px'
     });
   }
 
-  navigateToProductPage(product: Product) {
-    this.router.navigate(['/product', product.id]);
-  }
 
   private updateSliderPosition(animate: boolean): void {
     const sliderElement = this.sliderRef.nativeElement;
@@ -180,7 +178,6 @@ export class ProductSliderComponent implements OnInit, AfterViewInit {
 
     if (clickDuration < 200 && this.clickedItemIndex !== -1) {
       const clickedProduct = this.displayProducts[this.clickedItemIndex];
-      this.navigateToProductPage(clickedProduct);
     }
 
     this.clickedItemIndex = -1;

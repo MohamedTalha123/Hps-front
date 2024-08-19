@@ -1,17 +1,24 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef,OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { BrandService } from '../../services/brand.service';
+import { Brand } from '../../entity/brand';
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })
-export class FooterComponent implements AfterViewInit, OnDestroy {
+export class FooterComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('footerContent') footerContent!: ElementRef;
   @ViewChild('brandsDropdown') brandsDropdown!: ElementRef;
   isBrandsDropdownVisibleInFooter = false;
   private resizeObserver: ResizeObserver | null = null;
+  brands: Brand[] = [];
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef,    private brandService: BrandService, private router: Router) {}
+
+  ngOnInit() {
+    this.loadBrands();
+  }
 
   ngAfterViewInit() {
     this.setupResizeObserver();
@@ -20,6 +27,26 @@ export class FooterComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.cleanupResizeObserver();
   }
+
+  loadBrands() {
+    this.brandService.getAllBrands().subscribe(
+      (brands: Brand[]) => {
+        this.brands = brands;
+      },
+      error => {
+        console.error('Error loading brands:', error);
+      }
+    );
+  }
+
+  navigateTo(route: string, filter?: { type: string, value: any }) {
+    if (filter) {
+      this.router.navigate([route], { queryParams: { [filter.type]: filter.value } });
+    } else {
+      this.router.navigate([route]);
+    }
+  }
+
 
   showBrandsDropdown() {
     this.isBrandsDropdownVisibleInFooter = true;

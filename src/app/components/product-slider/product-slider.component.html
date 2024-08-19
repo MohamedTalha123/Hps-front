@@ -8,8 +8,8 @@
              (mouseleave)="onMouseLeave()">
           <div class="product-item" *ngFor="let product of displayProducts; let i = index">
             <div class="product-container relative overflow-hidden cursor-pointer"
-                 (click)="navigateToProductPage(product)"
-                 (mousedown)="onItemMouseDown($event, i)">
+            [routerLink]="['/product', product.id]"
+            (mousedown)="onItemMouseDown($event, i)">
               <img [src]="product.imageUrl" [alt]="product.name" class="product-image w-full h-48 object-contain transition-transform duration-300 hover:scale-110">
               <button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2"
               (click)="openPreviewPopup(product); $event.stopPropagation(); $event.preventDefault();">
@@ -20,7 +20,7 @@
               </div>
             </div>
             <div class="p-2">
-              <h2 class="text-sm text-blue-600">{{ product.brand.name }}</h2>
+              <h2 class="text-sm text-blue-600">{{ product.brandName }}</h2>
               <h3 class="text-base font-medium line-clamp-2">{{ product.name }}</h3>
               <p class="text-sm font-bold mt-2">{{ product.price | currency }}</p>
             </div>

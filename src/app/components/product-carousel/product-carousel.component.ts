@@ -15,28 +15,28 @@ export class ProductCarouselComponent implements AfterViewInit {
       alt: 'Banner 1',
       title: 'New Collection',
       description: 'Discover our latest arrivals',
-      category: 'new-arrivals'
+      category: 'ROLEX'
     },
     {
       imageUrl: '../../../assets/images/baner/omega.jpg',
       alt: 'Banner 2',
       title: 'Summer Sale',
       description: 'Up to 50% off on selected items',
-      category: 'sale'
+      category: 'OMEGA'
     },
     {
       imageUrl: '../../../assets/images/baner/tissot.jpg',
       alt: 'tissot',
       title: 'Summer Sale',
       description: 'Up to 50% off on selected items',
-      category: 'sale'
+      category: 'CASIO'
     },
     {
       imageUrl: '../../../assets/images/baner/casio4.jpg',
       alt: 'casio',
       title: 'Summer Sale',
       description: 'Up to 50% off on selected items',
-      category: 'sale'
+      category: 'CASIO'
     },
     // Add more banners as needed
   ];
@@ -53,6 +53,5 @@ export class ProductCarouselComponent implements AfterViewInit {
   }
 
   goToCategory(category: string) {
-    this.router.navigate(['/category', category]);
-  }
+    this.router.navigate(['/products'], { queryParams: { brand: category } });  }
 }

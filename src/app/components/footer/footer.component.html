@@ -23,33 +23,26 @@
         </div>
   
         <!-- MENU Column -->
-        <div>
-          <h3 class="text-lg font-semibold pb-2 border-b border-gray-500">MENU</h3>
-          <ul class="mt-4 space-y-2">
-            <li><a href="#" class="block pb-2 border-b border-gray-500">HOME</a></li>
-            <li><a href="#" class="block pb-2 border-b border-gray-500">PRODUCTS</a></li>
-            <li><a href="#" class="block pb-2 border-b border-gray-500">FOR MEN</a></li>
-            <li><a href="#" class="block pb-2 border-b border-gray-500">FOR WOMEN</a></li>
-            <li class="relative group" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
-              <a href="#" class="block pb-2 border-b border-gray-500">BRANDS</a>
-              <div #brandsDropdown 
-                   class="absolute left-0 bottom-full mb-2 w-48 bg-blue-800 shadow-lg py-2 z-10 transition-all duration-300"
-                   [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisibleInFooter, 'opacity-100 visible': isBrandsDropdownVisibleInFooter}">
-                <a href="#" class="block px-4 py-2 hover:bg-black">CASIO</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">OMEGA</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">ROLEX</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">FESTINA</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">DANIEL HECHER</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">YONGER & BRESSON</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">MORGAN</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">PACO-RABANNE</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">YEMA</a>
-                <a href="#" class="block px-4 py-2 hover:bg-black">RHYTHM</a>
-              </div>
-            </li>
-            <li><a href="#" class="block pb-2 border-b border-gray-500">CONTACT</a></li>
-          </ul>
-        </div>
+<!-- Replace the MENU column with this -->
+<div>
+  <h3 class="text-lg font-semibold pb-2 border-b border-gray-500">MENU</h3>
+  <ul class="mt-4 space-y-2">
+    <li><a routerLink="/" class="block pb-2 border-b border-gray-500">HOME</a></li>
+    <li><a routerLink="/products" class="block pb-2 border-b border-gray-500">PRODUCTS</a></li>
+    <li><a routerLink="/products" [queryParams]="{gender: 'MALE'}" class="block pb-2 border-b border-gray-500">FOR MEN</a></li>
+    <li><a routerLink="/products" [queryParams]="{gender: 'FEMALE'}" class="block pb-2 border-b border-gray-500">FOR WOMEN</a></li>
+    <li class="relative group" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
+      <a href="#" class="block pb-2 border-b border-gray-500">BRANDS</a>
+      <div #brandsDropdown 
+           class="absolute left-0 bottom-full mb-2 w-48 bg-blue-800 shadow-lg py-2 z-10 transition-all duration-300"
+           [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisibleInFooter, 'opacity-100 visible': isBrandsDropdownVisibleInFooter}">
+        <a *ngFor="let brand of brands" routerLink="/products" [queryParams]="{brand: brand.name}" class="block px-4 py-2 hover:bg-black">{{ brand.name }}</a>
+      </div>
+    </li>
+    <li><a routerLink="/contact" class="block pb-2 border-b border-gray-500">CONTACT</a></li>
+  </ul>
+</div>
+
   
         <!-- INFORMATION Column -->
         <div>
