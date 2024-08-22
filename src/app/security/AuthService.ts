@@ -87,4 +87,6 @@ export class AuthService {
     const claims: any = this.oauthService.getIdentityClaims();
     return claims ? claims.email : null;
   }
+ 
 }
+

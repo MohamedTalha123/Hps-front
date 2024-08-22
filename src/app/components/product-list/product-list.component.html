@@ -26,8 +26,8 @@
         <input matSliderEndThumb [(ngModel)]="priceRange[1]">
       </mat-slider>
       <div class="flex justify-between">
-        <p>Min: {{ priceRange[0] | currency }}</p>
-        <p>Max: {{ priceRange[1] | currency }}</p>
+        <p>Min: {{ priceRange[0] }}</p>
+        <p>Max: {{ priceRange[1] }}</p>
       </div>
       <button mat-raised-button color="primary" (click)="applyPriceFilter()" class="w-full mt-2">
         Apply Price Filter
@@ -68,7 +68,7 @@
    <div class="p-4 flex-shrink-0">
      <h2 class="text-sm text-blue-600">{{ product.brandName }}</h2>
      <h3 class="text-base font-medium line-clamp-2">{{ product.name }}</h3>
-     <p class="text-sm font-bold mt-2">{{ product.price | currency }}</p>
+     <p class="text-sm font-bold mt-2">{{ product.price }}</p>
    </div>
  </div>
     </div>

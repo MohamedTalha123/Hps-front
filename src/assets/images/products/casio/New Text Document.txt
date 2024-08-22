@@ -29,8 +29,8 @@
         <input matSliderEndThumb [(ngModel)]="priceRange[1]">
       </mat-slider>
       <div class="price-display">
-        <p>Min: {{ priceRange[0] | currency }}</p>
-        <p>Max: {{ priceRange[1] | currency }}</p>
+        <p>Min: {{ priceRange[0] }}</p>
+        <p>Max: {{ priceRange[1] }}</p>
       </div>
       <button mat-raised-button color="primary" (click)="applyPriceFilter()">
         Apply Price Filter
@@ -67,7 +67,7 @@
           </div>
           <h2 class="product-brand">{{ product.brand }}</h2>
           <h3 class="product-name">{{ product.name }}</h3>
-          <p class="product-price">{{ product.price | currency }}</p>
+          <p class="product-price">{{ product.price }}</p>
         </div>
       </mat-grid-tile>
     </mat-grid-list>
@@ -263,8 +263,8 @@ i am using angular 17 to create a frontend fora ecommerce website i created a pr
         <input matSliderEndThumb [(ngModel)]="priceRange[1]">
       </mat-slider>
       <div class="price-display">
-        <p>Min: {{ priceRange[0] | currency }}</p>
-        <p>Max: {{ priceRange[1] | currency }}</p>
+        <p>Min: {{ priceRange[0] }}</p>
+        <p>Max: {{ priceRange[1] }}</p>
       </div>
       <button mat-raised-button color="primary" (click)="applyPriceFilter()">
         Apply Price Filter
@@ -300,7 +300,7 @@ i am using angular 17 to create a frontend fora ecommerce website i created a pr
             <div class="product-details">
               <h2 class="product-brand">{{ product.brand }}</h2>
               <h3 class="product-name">{{ product.name }}</h3>
-              <p class="product-price">{{ product.price | currency }}</p>
+              <p class="product-price">{{ product.price }}</p>
             </div>
           </div>
         </mat-grid-tile>

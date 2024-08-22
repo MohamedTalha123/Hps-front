@@ -1,45 +1,81 @@
 // src/app/components/checkout/checkout.component.ts
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CartService } from '../../services/cart.service';
-import { CartItem } from "../../entity/cart";
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CheckoutService} from "../../services/checkout.service";
+
+import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']
 })
+/// <reference path="../../../typings.d.ts" />
 export class CheckoutComponent implements OnInit {
-  checkoutForm: FormGroup;
-  cartItems: CartItem[] = [];
-  total: number = 0;
+  
+  stripe = Stripe(environment.stripePublishableKey);
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private cartService: CartService
-  ) {
-    this.checkoutForm = this.formBuilder.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      phone: ['', Validators.required],
-      street: ['', Validators.required],
-      city: ['', Validators.required],
-      postalCode: ['']
-    });
+  @Input() secretKey !: string;
+
+  @Input() amount !: number;
+  cardElement : any;
+
+  displayError : any;
+
+  elements !: any;
+
+  constructor(private checkoutService : CheckoutService) {
   }
 
-  ngOnInit() {
-    this.cartService.cart$.subscribe(items => {
-      this.cartItems = items;
-      this.total = this.cartService.getTotal();
-    });
-  }
-
-  onSubmit() {
-    if (this.checkoutForm.valid) {
-      console.log('Order submitted', this.checkoutForm.value);
-      // Process the order
-      this.cartService.clearCart();
-      // Navigate to a confirmation page
+  ngOnInit(): void {
+    // this.secretKeyService.mySubject.subscribe(data => {
+    //   this.secretKey = data;
+    // })
+    if (this.secretKey) {
+      console.log(this.secretKey);
+      this.setupStripePaymentForm();
     }
+
   }
+
+  private setupStripePaymentForm() {
+    const appearance = {
+      theme: 'night',
+      labels: 'floating'
+    };
+    this.elements = this.stripe.elements({clientSecret: this.secretKey, appearance : appearance});
+    console.log(this.secretKey);
+    this.cardElement = this.elements.create('payment');
+    this.cardElement.mount('#card-element');
+    this.cardElement.on('change', (event : any) => {
+      this.displayError = document.getElementById('card-errors');
+
+      if (event.complete){
+        this.displayError.textContent = "";
+      } else if (event.error){
+        this.displayError.textContent = event.error.mssage;
+      }
+    });
+  }
+  // onConfirm(){
+  //   this.stripe.confirmPayment({elements : this.elements,
+  //     confirmParams: {
+  //     return_url: 'http://localhost/4200',
+  //   }});
+  //   this.checkoutService.chargerSolde(Number(this.amount)).subscribe(response => {
+  //       console.log(response);
+  //     }
+  //   );
+  // }
+  onSubmit(){
+    // this.checkoutService.confirmPayment("confirmationCode").subscribe(
+    //   response => {
+
+    //     // this.test = JSON.parse(response?.data?.paymentIntent).client_secret;
+
+    //     this.stripe.confirmCardPayment(JSON.parse(response?.data?.paymentIntent).client_secret,
+    //       {
+    //         payment_method: {
+    //           card: this.cardElement}
+    //       })
+    //   })
+}
 }

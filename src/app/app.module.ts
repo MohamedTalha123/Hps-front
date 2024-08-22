@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import {NgOtpInputModule} from 'ng-otp-input';
+
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ProductCarouselComponent } from './components/product-carousel/product-carousel.component';
 import { BrandSliderComponent } from './components/brand-slider/brand-slider.component';
@@ -32,10 +34,12 @@ import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CartService } from './services/cart.service';
 import { HttpClientModule } from '@angular/common/http';
-import { AdminPageComponent } from './components/admin-page/admin-page.component';
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { AuthService } from './security/AuthService';
 import { AuthGuard } from './security/AuthGuard';
+import { OtpVerificationComponent } from './components/otp-verification/otp-verification.component';
+
+
 
 @NgModule({
   declarations: [
@@ -55,11 +59,12 @@ import { AuthGuard } from './security/AuthGuard';
     AboutUsComponent,
     CartComponent,
     CheckoutComponent,
-    AdminPageComponent,
+    OtpVerificationComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    NgOtpInputModule,
     MatGridListModule,
     MatPaginatorModule,
     MatFormFieldModule,

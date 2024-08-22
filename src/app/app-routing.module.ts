@@ -6,18 +6,16 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
 import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ProductListComponent } from './components/product-list/product-list.component';
-import { AdminPageComponent } from './components/admin-page/admin-page.component';
 import { AuthGuard } from './security/AuthGuard';
 
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'admin', component: AdminPageComponent,canActivate: [AuthGuard] },
   { path: 'about-us', component: AboutUsComponent },
   { path: 'product/:id', component: ProductPageComponent },
   { path: 'cart', component: CartComponent},
   { path: 'products', component: ProductListComponent },
-  { path: 'checkout', component: CheckoutComponent,canActivate: [AuthGuard]},
+  { path: 'checkout', component: CheckoutComponent},
   { path: '**', redirectTo: '' },
 ];
 

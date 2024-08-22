@@ -21,7 +21,7 @@
           <span class="mx-2">{{ item.quantity }}</span>
           <button (click)="updateQuantity(item, 1)" class="px-2 py-1 bg-gray-200">+</button>
         </div>
-        <div>{{ item.product.price * item.quantity | currency }}</div>
+        <div>{{ item.product.price * item.quantity   }}</div>
         <div>
           <button (click)="removeItem(item.product.id)" class="text-red-500">X</button>
         </div>
@@ -35,7 +35,7 @@
       <h3 class="text-xl font-bold text-blue-500 mb-4 pb-2 border-b">Cart Total</h3>
       <div class="flex justify-between py-2 border-b">
         <span class="text-blue-500">Total</span>
-        <span class="text-black">{{ total | currency }}</span>
+        <span class="text-black">{{ total  }}</span>
       </div>
       <button routerLink="/checkout" class="mt-4 w-full px-4 py-2 bg-orange-500 text-white">Validate the Order</button>
     </div>

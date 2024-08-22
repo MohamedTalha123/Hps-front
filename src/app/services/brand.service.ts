@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Brand, BrandRequest, BrandResponse } from '../entity/brand';
-import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +9,9 @@ import { OAuthService } from 'angular-oauth2-oidc';
 export class BrandService {
   private apiUrl = 'http://localhost:8091/api/v1/brands';
 
-  constructor(private http: HttpClient, private authService: OAuthService) {}
+  constructor(private http: HttpClient) {}
  
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getAccessToken();
-    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
-  }
+
  
   private handleError(error: any) {
     console.error('API error:', error);
@@ -30,17 +26,17 @@ export class BrandService {
   }
 
   createBrand(brand: BrandRequest): Observable<number> {
-    return this.http.post<number>(this.apiUrl, brand,{ headers: this.getHeaders() })
+    return this.http.post<number>(this.apiUrl, brand)
     .pipe(catchError(this.handleError));
   }
 
   updateBrand(id: number, brand: BrandRequest): Observable<number> {
-    return this.http.put<number>(`${this.apiUrl}/${id}`, brand,{ headers: this.getHeaders() })
+    return this.http.put<number>(`${this.apiUrl}/${id}`, brand)
     .pipe(catchError(this.handleError));
   }
 
   deleteBrand(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`,{ headers: this.getHeaders() })
+    return this.http.delete<void>(`${this.apiUrl}/${id}`)
     .pipe(catchError(this.handleError));
   }
 }

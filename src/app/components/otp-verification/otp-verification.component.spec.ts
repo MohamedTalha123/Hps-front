@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AdminPageComponent } from './admin-page.component';
+import { OtpVerificationComponent } from './otp-verification.component';
 
-describe('AdminPageComponent', () => {
-  let component: AdminPageComponent;
-  let fixture: ComponentFixture<AdminPageComponent>;
+describe('OtpVerificationComponent', () => {
+  let component: OtpVerificationComponent;
+  let fixture: ComponentFixture<OtpVerificationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AdminPageComponent]
+      declarations: [OtpVerificationComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(AdminPageComponent);
+    fixture = TestBed.createComponent(OtpVerificationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -39,22 +39,22 @@ export class ProductService {
 
 
   createProduct(product: ProductRequest): Observable<number> {
-    return this.http.post<number>(this.apiUrl, product,{ headers: this.getHeaders() })
+    return this.http.post<number>(this.apiUrl, product)
     .pipe(catchError(this.handleError));
   }
 
   updateProduct(id: number, product: ProductRequest): Observable<number> {
-    return this.http.put<number>(`${this.apiUrl}/${id}`, product,{ headers: this.getHeaders() })
+    return this.http.put<number>(`${this.apiUrl}/${id}`, product)
     .pipe(catchError(this.handleError));
   }
 
   deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`,{ headers: this.getHeaders() })
+    return this.http.delete<void>(`${this.apiUrl}/${id}`)
     .pipe(catchError(this.handleError));
   }
 
   getProductsByBrand(brand: string): Observable<ProductResponse[]> {
-    return this.http.get<ProductResponse[]>(`${this.apiUrl}/brand/${brand}`,{ headers: this.getHeaders() })
+    return this.http.get<ProductResponse[]>(`${this.apiUrl}/brand/${brand}`)
     .pipe(catchError(this.handleError));
   }
 }
