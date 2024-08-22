@@ -57,8 +57,11 @@ export class ProductSliderComponent implements OnInit, AfterViewInit {
   }
 
   updateItemsToShow() {
-    this.itemsToShow = window.innerWidth < 768 ? 2 : 4;
+    if (typeof window !== 'undefined') {
+      this.itemsToShow = window.innerWidth < 768 ? 2 : 4;
+    }
   }
+  
 
   updateDisplayProducts() {
     const totalProducts = this.casioProducts.length;

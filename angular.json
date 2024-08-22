@@ -26,6 +26,12 @@
             "outputPath": "dist/e-commerce",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "allowedCommonJsDependencies": [
+              "keycloak-js",
+              "base64-js",
+              "js-sha256",
+              "rfdc"
+            ],
             "polyfills": [
               "zone.js"
             ],
@@ -114,5 +120,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "205325b3-a708-4d30-8e64-c1af8c199af2"
   }
 }

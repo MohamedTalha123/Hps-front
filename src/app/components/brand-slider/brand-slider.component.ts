@@ -74,8 +74,11 @@ export class BrandSliderComponent implements OnInit, AfterViewInit {
   }
 
   updateItemsToShow() {
-    this.itemsToShow = window.innerWidth < 768 ? 3 : 4;
+    if (typeof window !== 'undefined') {
+      this.itemsToShow = window.innerWidth < 768 ? 2 : 4;
+    }
   }
+  
 
   calculateItemWidth() {
     const sliderElement = this.sliderRef.nativeElement;

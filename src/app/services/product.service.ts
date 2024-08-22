@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Product, ProductRequest, ProductResponse } from '../entity/product';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +11,18 @@ import { Product, ProductRequest, ProductResponse } from '../entity/product';
 export class ProductService {
   private apiUrl = 'http://localhost:8091/api/v1/products';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: OAuthService) {}
+ 
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.getAccessToken();
+    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  }
+  private handleError(error: any) {
+    console.error('API error:', error);
+    return throwError(error);}
 
   getAllProducts(): Observable<ProductResponse[]> {
-    return this.http.get<ProductResponse[]>(this.apiUrl);
+    return this.http.get<ProductResponse[]>("http://localhost:8091/api/v1/products/public");
   }
 
   searchProducts(query: string): Observable<ProductResponse[]> {
@@ -25,36 +34,27 @@ export class ProductService {
   }
 
   getProductById(id: number): Observable<ProductResponse> {
-    return this.http.get<ProductResponse>(`${this.apiUrl}/${id}`).pipe(
-      map(response => {
-        if (response && Object.keys(response).length > 0) {
-          return response;
-        } else {
-          throw new Error('Product not found');
-        }
-      }),
-      catchError(this.handleError)
-    );
-  }
+    return this.http.get<ProductResponse>(`http://localhost:8091/api/v1/products/public/${id}`);}
 
-  private handleError(error: HttpErrorResponse) {
-    console.error('An error occurred:', error);
-    return throwError(() => new Error('An error occurred while fetching the product. Please try again.'));
-  }
+
 
   createProduct(product: ProductRequest): Observable<number> {
-    return this.http.post<number>(this.apiUrl, product);
+    return this.http.post<number>(this.apiUrl, product,{ headers: this.getHeaders() })
+    .pipe(catchError(this.handleError));
   }
 
   updateProduct(id: number, product: ProductRequest): Observable<number> {
-    return this.http.put<number>(`${this.apiUrl}/${id}`, product);
+    return this.http.put<number>(`${this.apiUrl}/${id}`, product,{ headers: this.getHeaders() })
+    .pipe(catchError(this.handleError));
   }
 
   deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`,{ headers: this.getHeaders() })
+    .pipe(catchError(this.handleError));
   }
 
   getProductsByBrand(brand: string): Observable<ProductResponse[]> {
-    return this.http.get<ProductResponse[]>(`${this.apiUrl}/brand/${brand}`);
+    return this.http.get<ProductResponse[]>(`${this.apiUrl}/brand/${brand}`,{ headers: this.getHeaders() })
+    .pipe(catchError(this.handleError));
   }
 }

@@ -33,6 +33,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CartService } from './services/cart.service';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminPageComponent } from './components/admin-page/admin-page.component';
+import { OAuthModule } from 'angular-oauth2-oidc';
+import { AuthService } from './security/AuthService';
+import { AuthGuard } from './security/AuthGuard';
 
 @NgModule({
   declarations: [
@@ -68,13 +71,23 @@ import { AdminPageComponent } from './components/admin-page/admin-page.component
     MatIconModule,
     MatButtonModule,
     RouterModule,
+    
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+     OAuthModule.forRoot({
+      resourceServer: {
+        allowedUrls: ['http://localhost:8091'],
+        sendAccessToken: true,
+      },
+    }),
+ 
   ],
   providers: [
     provideClientHydration(),
     provideAnimationsAsync(),
-    CartService
+    CartService,
+    AuthService,
+    AuthGuard
   ],
   bootstrap: [AppComponent]
 })
