@@ -20,7 +20,7 @@ export class CheckoutService {
   }
 
   createPaymentIntent(paymentIntentRequest: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/create-payment-intent`, paymentIntentRequest);
+    return this.http.post(`${this.apiUrl}/create-intent`, paymentIntentRequest);
   }
 
   payBill(billRequest: any): Observable<any> {

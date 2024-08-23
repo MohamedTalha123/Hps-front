@@ -8,6 +8,8 @@ import { ProductService } from '../../services/product.service';
 import { Product, ProductResponse } from '../../entity/product';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { CheckoutService } from '../../services/checkout.service';
+import { BillRequest } from '../../entity/Bill';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -35,7 +37,7 @@ export class NavbarComponent implements OnInit {
 
   // New state to track which option is selected
   selectedOption: string = 'home';
-  constructor(private cartService: CartService,    private brandService: BrandService,     private productService: ProductService, private router: Router) {}
+  constructor(private cartService: CartService,    private brandService: BrandService,     private productService: ProductService, private router: Router, private checkoutService : CheckoutService) {}
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
@@ -155,5 +157,19 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/product', product.id]);
     this.searchQuery = '';
     this.searchResults = [];
+  }
+  checkout(){
+    const billRequest : BillRequest = {
+      phone : '04939943932',
+      clientId : 'id',
+      orderId : 'id',
+      amount : this.cartTotal
+    }
+    this.checkoutService.createBill(billRequest).subscribe(
+      response => {
+       
+      });
+    this.router.navigate(['/checkout']);
+
   }
 }

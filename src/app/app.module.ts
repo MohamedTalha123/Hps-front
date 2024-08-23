@@ -38,11 +38,14 @@ import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { OtpVerificationComponent } from './components/otp-verification/otp-verification.component';
 import { HttpTokenInterceptor } from './auth/interceptor.interceptor';
-import { KeycloakService } from './services/keycloak/keycloak.service';
+import { initializeKeycloak } from './init/keycloak-init.factory';
+import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
+// import { KeycloakService } from './services/keycloak/keycloak.service';
 
-export function kcFactory(kcService: KeycloakService) {
-  return () => kcService.init();
-}
+
+// export function kcFactory(kcService: KeycloakService) {
+//   return () => kcService.init();
+// }
 
 @NgModule({
   declarations: [
@@ -80,8 +83,8 @@ export function kcFactory(kcService: KeycloakService) {
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    
     ReactiveFormsModule,
+    KeycloakAngularModule, //added
     HttpClientModule,
      OAuthModule.forRoot({
       resourceServer: {
@@ -104,7 +107,7 @@ export function kcFactory(kcService: KeycloakService) {
     {
       provide: APP_INITIALIZER,
       deps: [KeycloakService],
-      useFactory: kcFactory,
+      useFactory: initializeKeycloak,
       multi: true
     }
   ],

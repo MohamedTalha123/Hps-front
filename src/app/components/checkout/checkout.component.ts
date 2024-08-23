@@ -1,6 +1,6 @@
 // src/app/components/checkout/checkout.component.ts
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {CheckoutService} from "../../services/checkout.service";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CheckoutService } from "../../services/checkout.service";
 
 import { environment } from '../../../../environments/environment';
 @Component({
@@ -10,30 +10,32 @@ import { environment } from '../../../../environments/environment';
 })
 /// <reference path="../../../typings.d.ts" />
 export class CheckoutComponent implements OnInit {
-  
+
   stripe = Stripe(environment.stripePublishableKey);
 
-  @Input() secretKey !: string;
+  secretKey !: string;
 
-  @Input() amount !: number;
-  cardElement : any;
+  amount !: number;
 
-  displayError : any;
+  cardElement: any;
+
+  displayError: any;
 
   elements !: any;
 
-  constructor(private checkoutService : CheckoutService) {
+  otpMsg !: string;
+
+  constructor(private checkoutService: CheckoutService) {
   }
 
   ngOnInit(): void {
-    // this.secretKeyService.mySubject.subscribe(data => {
-    //   this.secretKey = data;
-    // })
-    if (this.secretKey) {
+    this.secretKey = history.state.secretKey;
+    this.amount = history.state.amount;
+
+    if ('secret keyy !!!  ' + this.secretKey) {
       console.log(this.secretKey);
       this.setupStripePaymentForm();
     }
-
   }
 
   private setupStripePaymentForm() {
@@ -41,41 +43,51 @@ export class CheckoutComponent implements OnInit {
       theme: 'night',
       labels: 'floating'
     };
-    this.elements = this.stripe.elements({clientSecret: this.secretKey, appearance : appearance});
+    this.elements = this.stripe.elements({ clientSecret: this.secretKey, appearance: appearance });
     console.log(this.secretKey);
     this.cardElement = this.elements.create('payment');
     this.cardElement.mount('#card-element');
-    this.cardElement.on('change', (event : any) => {
+    this.cardElement.on('change', (event: any) => {
       this.displayError = document.getElementById('card-errors');
 
-      if (event.complete){
+      if (event.complete) {
         this.displayError.textContent = "";
-      } else if (event.error){
+      } else if (event.error) {
         this.displayError.textContent = event.error.mssage;
       }
     });
   }
-  // onConfirm(){
-  //   this.stripe.confirmPayment({elements : this.elements,
-  //     confirmParams: {
-  //     return_url: 'http://localhost/4200',
-  //   }});
-  //   this.checkoutService.chargerSolde(Number(this.amount)).subscribe(response => {
-  //       console.log(response);
-  //     }
-  //   );
-  // }
-  onSubmit(){
-    // this.checkoutService.confirmPayment("confirmationCode").subscribe(
-    //   response => {
+  payBill() {
+    this.checkoutService.payBill({ phone: '0616061968' }).subscribe(response => {
+      console.log('paybill resp ++ ' + response);
+    }
+    );
+  }
 
-    //     // this.test = JSON.parse(response?.data?.paymentIntent).client_secret;
+  onOtpChange(data: string) {
+    this.otpMsg = data;
 
-    //     this.stripe.confirmCardPayment(JSON.parse(response?.data?.paymentIntent).client_secret,
-    //       {
-    //         payment_method: {
-    //           card: this.cardElement}
-    //       })
-    //   })
-}
+  }
+
+  onSubmitOtp() {
+    this.stripe.confirmPayment({
+      elements: this.elements,
+      confirmParams: {
+        return_url: 'http://localhost/4200',
+      }
+    });
+
+    this.checkoutService.confirmBillPayment(this.otpMsg).subscribe(
+      response => {
+        console.log('confirmPayment res ++ ' + response);
+        
+        this.stripe.confirmCardPayment(this.secretKey,
+          {
+            payment_method: {
+              card: this.cardElement
+            }
+          })
+      })
+  }
+
 }

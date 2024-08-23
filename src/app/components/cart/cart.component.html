@@ -37,7 +37,7 @@
         <span class="text-blue-500">Total</span>
         <span class="text-black">{{ total  }}</span>
       </div>
-      <button routerLink="/checkout" class="mt-4 w-full px-4 py-2 bg-orange-500 text-white">Validate the Order</button>
+      <button (click)="createPaymentIntent()" class="mt-4 w-full px-4 py-2 bg-orange-500 text-white">Validate the Order</button>
     </div>
   </div>
   
