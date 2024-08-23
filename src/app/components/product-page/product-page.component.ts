@@ -95,12 +95,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  buyProduct() {
-    if (this.product) {
-      this.cartService.addToCart(this.product, this.quantity);
-      console.log(`Buying ${this.quantity} of ${this.product.name}`);
-    } else {
-      console.error('Cannot buy: Product is undefined');
-    }
+  onCheckout() {
+    this.router.navigate(['/checkout']);  
+
   }
 }

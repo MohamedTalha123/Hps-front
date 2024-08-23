@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { BrandService } from "../../services/brand.service";
 import { Brand } from '../../entity/brand';
 import { ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../security/AuthService';
 
 @Component({
   selector: 'app-product-list',
@@ -35,7 +34,6 @@ export class ProductListComponent implements OnInit {
     private router: Router,
     private brandService: BrandService,
     private route: ActivatedRoute,
-    private authservice: AuthService
 
   ) { }
 
@@ -67,7 +65,6 @@ export class ProductListComponent implements OnInit {
       },
       error => console.error('Error loading products:', error)
     );
-    console.log("User roles"+this.authservice.getRoles());
 
   }
 

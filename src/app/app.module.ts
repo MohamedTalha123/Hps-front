@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -33,13 +33,16 @@ import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CartService } from './services/cart.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { OAuthModule } from 'angular-oauth2-oidc';
-import { AuthService } from './security/AuthService';
-import { AuthGuard } from './security/AuthGuard';
+
 import { OtpVerificationComponent } from './components/otp-verification/otp-verification.component';
+import { HttpTokenInterceptor } from './auth/interceptor.interceptor';
+import { KeycloakService } from './services/keycloak/keycloak.service';
 
-
+export function kcFactory(kcService: KeycloakService) {
+  return () => kcService.init();
+}
 
 @NgModule({
   declarations: [
@@ -47,8 +50,8 @@ import { OtpVerificationComponent } from './components/otp-verification/otp-veri
     NavbarComponent,
     ProductCarouselComponent,
     BrandSliderComponent,
-    ProductListComponent,
     ProductPreviewPopupComponent,
+    ProductListComponent,
     ProductPageComponent,
     HomeComponent,
     TestComponent,
@@ -60,6 +63,7 @@ import { OtpVerificationComponent } from './components/otp-verification/otp-veri
     CartComponent,
     CheckoutComponent,
     OtpVerificationComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -91,9 +95,20 @@ import { OtpVerificationComponent } from './components/otp-verification/otp-veri
     provideClientHydration(),
     provideAnimationsAsync(),
     CartService,
-    AuthService,
-    AuthGuard
+    HttpClient,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpTokenInterceptor,
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      deps: [KeycloakService],
+      useFactory: kcFactory,
+      multi: true
+    }
   ],
+  
   bootstrap: [AppComponent]
 })
 export class AppModule { }
