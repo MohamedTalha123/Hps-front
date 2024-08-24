@@ -1,22 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Order } from '../entity/order';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CheckoutService {
 
-  private apiUrl = 'http://localhost:8091/api/v1/orders';
+  private readonly apiUrl = 'http://localhost:8091/api/v1/orders';
+  
 
   constructor(private http: HttpClient) { }
 
   createOrder(orderRequest: any): Observable<any> {
     return this.http.post(`${this.apiUrl}`, orderRequest);
   }
+  
 
   createBill(billRequest: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/checkout`, billRequest);
+  }
+  getCurrentOrder():Observable<any>{
+    return this.http.get(`${this.apiUrl}/getCurrentOrder`);
+  }
+  getCurrentOrderLineItems():Observable<any>{
+    return this.http.get(`${this.apiUrl}/getCurrentOrderLineItems`);
   }
 
   createPaymentIntent(paymentIntentRequest: any): Observable<any> {

@@ -104,12 +104,12 @@ import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
       useClass: HttpTokenInterceptor,
       multi: true
     },
-    {
-      provide: APP_INITIALIZER,
-      deps: [KeycloakService],
-      useFactory: initializeKeycloak,
-      multi: true
-    }
+    // {
+    //   provide: APP_INITIALIZER,
+    //   deps: [KeycloakService],
+    //   useFactory: initializeKeycloak,
+    //   multi: true
+    // }
   ],
   
   bootstrap: [AppComponent]

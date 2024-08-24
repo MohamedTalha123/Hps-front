@@ -1,4 +1,4 @@
-import { Component, HostListener,OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CartItem } from '../../entity/cart';
 import { CartService } from '../../services/cart.service';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { CheckoutService } from '../../services/checkout.service';
 import { BillRequest } from '../../entity/Bill';
+import { response } from 'express';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -22,8 +23,8 @@ export class NavbarComponent implements OnInit {
   isBrandsDropdownVisible = false;
   dropdownTimeout: any;
   lastScrollTop = 0;
-  navbarHeight = 70; // Adjust this to match your navbar's height
-  scrollThreshold = 200; // Adjust this value to change when the navbar reappears
+  navbarHeight = 70;
+  scrollThreshold = 200;
   hidePosition = 0;
   cartItems: CartItem[] = [];
   cartItemsCount: number = 0;
@@ -35,24 +36,37 @@ export class NavbarComponent implements OnInit {
   private searchSubject = new Subject<string>();
 
 
-  // New state to track which option is selected
   selectedOption: string = 'home';
-  constructor(private cartService: CartService,    private brandService: BrandService,     private productService: ProductService, private router: Router, private checkoutService : CheckoutService) {}
+  constructor(private cartService: CartService, private brandService: BrandService, private productService: ProductService, private router: Router, private checkoutService: CheckoutService) { }
 
   ngOnInit() {
-    this.cartService.cart$.subscribe(items => {
-      this.cartItems = items;
-      this.cartItemsCount = this.cartService.getTotalItems();
-      this.cartTotal = this.cartService.getTotal();
-      this.loadBrands();
+    this.checkoutService.getCurrentOrder().subscribe(response => {
+      if (response) {
+        this.cartTotal = response?.totalAmount;
+        this.checkoutService.getCurrentOrderLineItems().subscribe(response => {
+          this.cartItems = response;
+          this.cartItemsCount = response.length;
+          this.loadBrands();
+        })
+      }
+      else {
+        this.cartService.cart$.subscribe(items => {
+          this.cartItems = items;
+          this.cartItemsCount = this.cartService.getTotalItems();
+          this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
+          this.loadBrands();
 
-    });
+        });
+      }
+
+    })
+
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => this.productService.searchProducts(query))
     ).subscribe(results => {
-      this.searchResults = results.slice(0, 5); // Limit to 5 results
+      this.searchResults = results.slice(0, 5);
     });
   }
   loadBrands() {
@@ -65,7 +79,7 @@ export class NavbarComponent implements OnInit {
       }
     );
   }
-  
+
 
   navigateTo(route: string, filter?: { type: string, value: any }) {
     if (filter) {
@@ -80,7 +94,7 @@ export class NavbarComponent implements OnInit {
     this.selectedOption = 'brands';
     this.navigateTo('/products', { type: 'brand', value: brand });
   }
-  
+
   showCartDropdown() {
     clearTimeout(this.cartDropdownTimeout);
     this.isCartDropdownVisible = true;
@@ -89,10 +103,19 @@ export class NavbarComponent implements OnInit {
   hideCartDropdown() {
     this.cartDropdownTimeout = setTimeout(() => {
       this.isCartDropdownVisible = false;
-    }, 200); // 200ms delay before hiding
-      }
-  removeFromCart(productId: number) {
+    }, 200);
+  }
+  removeFromCart(productId: number,quantity:number) {
     this.cartService.removeFromCart(productId);
+    this.cartService.updateOrder({
+      product_id:productId,
+      quantity:quantity
+    }).subscribe(response=>{
+      if(response){
+        console.log(response);
+      }
+
+    })
   }
 
   toggleCartDropdown() {
@@ -158,16 +181,16 @@ export class NavbarComponent implements OnInit {
     this.searchQuery = '';
     this.searchResults = [];
   }
-  checkout(){
-    const billRequest : BillRequest = {
-      phone : '04939943932',
-      clientId : 'id',
-      orderId : 'id',
-      amount : this.cartTotal
+  checkout() {
+    const billRequest: BillRequest = {
+      phone: '0607677381',
+      clientId: 'id',
+      orderId: 'id',
+      amount: this.cartTotal
     }
     this.checkoutService.createBill(billRequest).subscribe(
       response => {
-       
+
       });
     this.router.navigate(['/checkout']);
 

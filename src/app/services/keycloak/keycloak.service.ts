@@ -27,8 +27,7 @@ export class KeycloakService {
 
   async init() {
     const authenticated = await this.keycloak.init({
-      onLoad: 'check-sso',  // Changed to 'check-sso' to prevent forced login
-      silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
+      onLoad: 'login-required',  
     });
     if (authenticated) {
       this._profile = (await this.keycloak.loadUserProfile()) as UserProfile;
