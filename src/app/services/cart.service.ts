@@ -10,7 +10,7 @@ import { Order, OrderLineResponse } from '../entity/order';
   providedIn: 'root'
 })
 export class CartService {
-  private readonly apiUrl = 'http://localhost:8091/api/v1/orders';  
+  private readonly apiUrl = 'http://localhost:8091/api/v1/orders';
 
   private cartItems: CartItem[] = [];
   private cartSubject = new BehaviorSubject<CartItem[]>([]);
@@ -27,6 +27,12 @@ export class CartService {
     }
     this.cartSubject.next(this.cartItems);
   }
+
+  updateCartItems(items: CartItem[]) {
+    this.cartItems = items;
+    this.cartSubject.next(this.cartItems);
+  }
+
 
   // Removes a product from the cart
   removeFromCart(productId: number) {

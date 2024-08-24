@@ -7,7 +7,7 @@ import { Brand } from '../../entity/brand';
 import { ProductService } from '../../services/product.service';
 import { Product, ProductResponse } from '../../entity/product';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { CheckoutService } from '../../services/checkout.service';
 import { BillRequest } from '../../entity/Bill';
 import { response } from 'express';
@@ -35,30 +35,31 @@ export class NavbarComponent implements OnInit {
   searchResults: ProductResponse[] = [];
   private searchSubject = new Subject<string>();
 
+  public cartSubject = new BehaviorSubject<any>(null);
+
 
   selectedOption: string = 'home';
   constructor(private cartService: CartService, private brandService: BrandService, private productService: ProductService, private router: Router, private checkoutService: CheckoutService) { }
 
   ngOnInit() {
+    this.cartService.cart$.subscribe(items => {
+      this.cartItems = items;
+      this.cartItemsCount = items.length;
+      this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
+    });
+
     this.checkoutService.getCurrentOrder().subscribe(response => {
       if (response) {
-        this.cartTotal = response?.totalAmount;
-        this.checkoutService.getCurrentOrderLineItems().subscribe(response => {
-          this.cartItems = response;
-          this.cartItemsCount = response.length;
+        this.checkoutService.getCurrentOrderLineItems().subscribe(lineItems => {
+          this.cartSubject.next(lineItems);
+          this.cartItems = lineItems;
+          this.cartItemsCount = lineItems.length;
+          this.cartTotal = response?.totalAmount;
+
+          this.cartService.updateCartItems(this.cartItems);
           this.loadBrands();
         })
       }
-      else {
-        this.cartService.cart$.subscribe(items => {
-          this.cartItems = items;
-          this.cartItemsCount = this.cartService.getTotalItems();
-          this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
-          this.loadBrands();
-
-        });
-      }
-
     })
 
     this.searchSubject.pipe(
@@ -79,7 +80,6 @@ export class NavbarComponent implements OnInit {
       }
     );
   }
-
 
   navigateTo(route: string, filter?: { type: string, value: any }) {
     if (filter) {
@@ -105,16 +105,24 @@ export class NavbarComponent implements OnInit {
       this.isCartDropdownVisible = false;
     }, 200);
   }
-  removeFromCart(productId: number,quantity:number) {
-    this.cartService.removeFromCart(productId);
-    this.cartService.updateOrder({
-      product_id:productId,
-      quantity:quantity
-    }).subscribe(response=>{
-      if(response){
-        console.log(response);
-      }
 
+  removeFromCart(productId: number, quantity: number) {
+    this.cartService.updateOrder({
+      product_id: productId,
+      quantity: quantity
+    }).subscribe(response => {
+      if (response) {
+        console.log(response);
+        this.cartService.removeFromCart(productId);
+
+        this.cartService.cart$.subscribe(items => {
+          this.cartSubject.next(items);
+
+          this.cartItems = this.cartSubject.value;
+          this.cartItemsCount = items.length;
+          this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
+        });
+      }
     })
   }
 
@@ -190,6 +198,7 @@ export class NavbarComponent implements OnInit {
     }
     this.checkoutService.createBill(billRequest).subscribe(
       response => {
+        console.log(response);
 
       });
     this.router.navigate(['/checkout']);

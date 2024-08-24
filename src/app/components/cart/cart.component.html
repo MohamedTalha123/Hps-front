@@ -23,7 +23,7 @@
         </div>
         <div>{{ item.product.price * item.quantity   }}</div>
         <div>
-          <button (click)="removeItem(item.product.id)" class="text-red-500">X</button>
+          <button (click)="removeItem(item.product.id, item.quantity)" class="text-red-500">X</button>
         </div>
       </div>
       <div class="mt-4 flex justify-between">
