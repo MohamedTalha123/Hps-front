@@ -52,7 +52,7 @@ export class CheckoutComponent implements OnInit {
     });
   }
   payBill() {
-    this.checkoutService.payBill({ phone: '0616061968' }).subscribe(response => {
+    this.checkoutService.payBill({ phone: '0607677381' }).subscribe(response => {
       console.log('paybill resp ++ ' + response?.message);
       this.otpSent = true;
     }
