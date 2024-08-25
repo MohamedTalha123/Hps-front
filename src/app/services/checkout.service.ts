@@ -37,6 +37,6 @@ export class CheckoutService {
   }
 
   confirmBillPayment(verificationCode: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/confirm-payment`, { verificationCode });
+    return this.http.post(`${this.apiUrl}/confirm-payment`,  verificationCode );
   }
 }

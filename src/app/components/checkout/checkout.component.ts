@@ -1,8 +1,9 @@
 // src/app/components/checkout/checkout.component.ts
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { CheckoutService } from "../../services/checkout.service";
 
 import { environment } from '../../../../environments/environment';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
@@ -12,11 +13,7 @@ import { environment } from '../../../../environments/environment';
 export class CheckoutComponent implements OnInit {
 
   stripe = Stripe(environment.stripePublishableKey);
-
-  secretKey !: string;
-
-  amount !: number;
-
+  otpSent: boolean = false;
   cardElement: any;
 
   displayError: any;
@@ -25,15 +22,12 @@ export class CheckoutComponent implements OnInit {
 
   otpMsg !: string;
 
-  constructor(private checkoutService: CheckoutService) {
+  constructor(private checkoutService: CheckoutService, public dialogRef: MatDialogRef<CheckoutComponent>, @Inject(MAT_DIALOG_DATA) public secretKey: string) {
   }
 
   ngOnInit(): void {
-    this.secretKey = history.state.secretKey;
-    this.amount = history.state.amount;
-
-    if ('secret keyy !!!  ' + this.secretKey) {
-      console.log(this.secretKey);
+    this.otpSent = false;
+    if (this.secretKey) {
       this.setupStripePaymentForm();
     }
   }
@@ -59,7 +53,8 @@ export class CheckoutComponent implements OnInit {
   }
   payBill() {
     this.checkoutService.payBill({ phone: '0616061968' }).subscribe(response => {
-      console.log('paybill resp ++ ' + response);
+      console.log('paybill resp ++ ' + response?.message);
+      this.otpSent = true;
     }
     );
   }
@@ -70,23 +65,33 @@ export class CheckoutComponent implements OnInit {
   }
 
   onSubmitOtp() {
-    this.stripe.confirmPayment({
-      elements: this.elements,
-      confirmParams: {
-        return_url: 'http://localhost/4200',
-      }
-    });
+    // this.stripe.confirmPayment({
+    //   elements: this.elements,
+    //   confirmParams: {
+    //     return_url: 'http://localhost/4200',
+    //   }
+    // });
 
     this.checkoutService.confirmBillPayment(this.otpMsg).subscribe(
       response => {
-        console.log('confirmPayment res ++ ' + response);
-        
-        this.stripe.confirmCardPayment(this.secretKey,
-          {
-            payment_method: {
-              card: this.cardElement
-            }
-          })
+        console.log('confirmPayment res ++ ' + response.message);
+
+        // this.stripe.confirmCardPayment(this.secretKey,
+        //   {
+        //     payment_method: {
+        //       card: this.cardElement
+        //     }
+        //   }).then((result : any) => {
+        //       console.log('Payment succeeded!');
+        //       this.dialogRef.close();
+        //     }
+        //   ) 
+        this.stripe.confirmPayment({
+          elements: this.elements,
+          confirmParams: {
+            return_url: 'http://localhost:4200',
+          }
+        });
       })
   }
 

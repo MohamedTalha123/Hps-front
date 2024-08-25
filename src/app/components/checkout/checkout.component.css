@@ -1,79 +1,57 @@
-#creditCard{
-    margin-top:2rem;
+#creditCard {
+  margin: 3.5rem;
 }
 
- .btn-confirm{
-    width: 45%;
-    padding: 0.7rem 1.5rem;
-    background: #34495e;
-    color: white;
-    border: none;
-    outline: none;
-    margin-top: 1rem;
-    cursor: pointer;
-    margin-left: 7px;
-    margin-right: 7px;
-    justify-content: center;
-    border-radius: 3px;
+.otp-config {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 0 solid rgba(0, 0, 0, .125);
+  border-radius: 1rem;
 }
 
-.btn-confirm:hover{
-    background: #2c3e50;
+.text {
+  color: #4b125c;
 }
 
+.img-thumbnail {
+  padding: .25rem;
+  background-color: #ecf2f5;
+  border: 1px solid #dee2e6;
+  border-radius: .25rem;
+  max-width: 100%;
+  height: auto;
+}
 
+.avatar-lg {
+  height: 150px;
+  width: 150px;
+}
 
-/* modal */
-.card {
-    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
-  }
-  .card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0 solid rgba(0,0,0,.125);
-    border-radius: 1rem;
-  }
-  .text{
-    color:#4b125c;
-  }
-  .img-thumbnail {
-    padding: .25rem;
-    background-color: #ecf2f5;
-    border: 1px solid #dee2e6;
-    border-radius: .25rem;
-    max-width: 100%;
-    height: auto;
-  }
-  .avatar-lg {
-    height: 150px;
-    width: 150px;
-  }
+button.pay-button:hover {
+  color: #8e13d1;
+  text-shadow: none;
+}
 
-  button.pay-button:hover {
-    color: #8e13d1;
-    text-shadow: none;
-  }
-  
-  button.pay-button,
-  button.pay-button:visited {
-    width: 130px;
-    margin: 15px;
-    padding: 14px 15px; 
-    color: #000000;
-    font-size: 14px;
-    border-radius: 10px;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(0, 0, 0, 0.2);
-  }
-  button.pay-button {
-    border: 2px solid #4b125c;
-  }
+button.pay-button,
+button.pay-button:visited {
+  width: 130px;
+  margin: 15px;
+  padding: 14px 15px;
+  color: #000000;
+  font-size: 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+button.pay-button {
+  border: 2px solid #4b125c;
+}

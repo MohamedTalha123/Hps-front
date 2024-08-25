@@ -4,6 +4,9 @@ import { CartService } from '../../services/cart.service';
 import { CartItem } from "../../entity/cart";
 import { CheckoutService } from '../../services/checkout.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { CheckoutComponent } from '../checkout/checkout.component';
+import { BillRequest } from '../../entity/Bill';
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
@@ -15,7 +18,9 @@ export class CartComponent implements OnInit {
 
   secretKey !: string;
 
-  constructor(private cartService: CartService, private checkoutService: CheckoutService, private router: Router, private route: ActivatedRoute,) { }
+
+  constructor(private cartService: CartService, private checkoutService: CheckoutService, private router: Router, private route: ActivatedRoute, private dialog: MatDialog,
+  ) { }
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
@@ -29,7 +34,7 @@ export class CartComponent implements OnInit {
   updateQuantity(item: CartItem, change: number) {
     let newQuantity = item.quantity + change;
     if (newQuantity > 0 && newQuantity <= item.product.availableQuantity) {
-   
+
       this.cartService.updateOrder({
         product_id: item.product.id,
         quantity: -change
@@ -57,12 +62,28 @@ export class CartComponent implements OnInit {
     console.log('Cart updated');
   }
 
-  createPaymentIntent() {
-    this.checkoutService.createPaymentIntent({ amount: this.total * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+  openPaymentPopup() {
+    const billRequest: BillRequest = {
+      phone: '0607677381',
+      clientId: '1',
+      orderId: '1',
+      amount: this.total
+    }
+    this.checkoutService.createBill(billRequest).subscribe(
       response => {
-        this.secretKey = JSON.parse(response?.paymentIntent).client_secret;
-        console.log('secret key +++ ' + this.secretKey);
-        this.router.navigate(['checkout'], { relativeTo: this.route, state: { secretKey: this.secretKey, amount: this.total } });
+        if (response) {
+          this.checkoutService.createPaymentIntent({ amount: this.total * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+            PaymentResponse => {
+              this.secretKey = PaymentResponse.client_secret;
+              if (this.secretKey) {
+                this.dialog.open(CheckoutComponent, {
+                  data: this.secretKey,
+                  width: '800px',
+                  height: '400px'
+                });
+              }
+            });
+        }
       });
 
   }

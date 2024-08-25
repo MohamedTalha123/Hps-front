@@ -11,6 +11,8 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { CheckoutService } from '../../services/checkout.service';
 import { BillRequest } from '../../entity/Bill';
 import { response } from 'express';
+import { CheckoutComponent } from '../checkout/checkout.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -33,13 +35,19 @@ export class NavbarComponent implements OnInit {
   cartDropdownTimeout: any;
   searchQuery: string = '';
   searchResults: ProductResponse[] = [];
+  secretKey !: string;
+
   private searchSubject = new Subject<string>();
 
   public cartSubject = new BehaviorSubject<any>(null);
 
-
   selectedOption: string = 'home';
-  constructor(private cartService: CartService, private brandService: BrandService, private productService: ProductService, private router: Router, private checkoutService: CheckoutService) { }
+  
+  constructor(private cartService: CartService, private brandService: BrandService,
+    private productService: ProductService, 
+    private router: Router, 
+    private checkoutService: CheckoutService,
+     private dialog: MatDialog,) { }
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
@@ -192,16 +200,25 @@ export class NavbarComponent implements OnInit {
   checkout() {
     const billRequest: BillRequest = {
       phone: '0607677381',
-      clientId: 'id',
-      orderId: 'id',
+      clientId: '1',
+      orderId: '1',
       amount: this.cartTotal
     }
     this.checkoutService.createBill(billRequest).subscribe(
       response => {
-        console.log(response);
-
+        if (response) {
+          this.checkoutService.createPaymentIntent({ amount: this.cartTotal * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+            PaymentResponse => {
+              this.secretKey = PaymentResponse.client_secret;
+              if (this.secretKey) {
+                this.dialog.open(CheckoutComponent, {
+                  data: this.secretKey,
+                  width: '800px',
+                  height: '400px'
+                });
+              }
+            });
+        }
       });
-    this.router.navigate(['/checkout']);
-
   }
 }
