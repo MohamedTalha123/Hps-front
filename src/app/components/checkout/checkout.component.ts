@@ -1,29 +1,29 @@
-// src/app/components/checkout/checkout.component.ts
-import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CheckoutService } from "../../services/checkout.service";
-
 import { environment } from '../../../../environments/environment';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { KeycloakService } from '../../services/keycloak/keycloak.service';
+
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']
 })
-/// <reference path="../../../typings.d.ts" />
 export class CheckoutComponent implements OnInit {
 
   stripe = Stripe(environment.stripePublishableKey);
   otpSent: boolean = false;
   cardElement: any;
-
   displayError: any;
+  elements!: any;
+  otpMsg!: string;
 
-  elements !: any;
-
-  otpMsg !: string;
-
-  constructor(private checkoutService: CheckoutService, public dialogRef: MatDialogRef<CheckoutComponent>, @Inject(MAT_DIALOG_DATA) public secretKey: string) {
-  }
+  constructor(
+    private checkoutService: CheckoutService,
+    public dialogRef: MatDialogRef<CheckoutComponent>,
+    @Inject(MAT_DIALOG_DATA) public secretKey: string,
+    private keycloakService: KeycloakService  // Inject KeycloakService
+  ) {}
 
   ngOnInit(): void {
     this.otpSent = false;
@@ -38,7 +38,6 @@ export class CheckoutComponent implements OnInit {
       labels: 'floating'
     };
     this.elements = this.stripe.elements({ clientSecret: this.secretKey, appearance: appearance });
-    console.log(this.secretKey);
     this.cardElement = this.elements.create('payment');
     this.cardElement.mount('#card-element');
     this.cardElement.on('change', (event: any) => {
@@ -47,52 +46,36 @@ export class CheckoutComponent implements OnInit {
       if (event.complete) {
         this.displayError.textContent = "";
       } else if (event.error) {
-        this.displayError.textContent = event.error.mssage;
+        this.displayError.textContent = event.error.message;
       }
     });
   }
+
   payBill() {
-    this.checkoutService.payBill({ phone: "0607677381" }).subscribe(response => {
-      console.log('paybill resp ++ ' + response?.message);
+    const phoneNumber = this.keycloakService.profile?.phone || 'default-phone-number';
+    console.log("the phone number is:::::"+this.keycloakService.profile?.phone);
+    
+    this.checkoutService.payBill({ phone: phoneNumber }).subscribe(response => {
+      console.log('paybill response: ' + response?.message);
       this.otpSent = true;
-    }
-    );
+    });
   }
 
   onOtpChange(data: string) {
     this.otpMsg = data;
-
   }
 
   onSubmitOtp() {
-    // this.stripe.confirmPayment({
-    //   elements: this.elements,
-    //   confirmParams: {
-    //     return_url: 'http://localhost/4200',
-    //   }
-    // });
-
     this.checkoutService.confirmBillPayment(this.otpMsg).subscribe(
       response => {
-        console.log('confirmPayment res ++ ' + response.message);
-       
-        // this.stripe.confirmCardPayment(this.secretKey,
-        //   {
-        //     payment_method: {
-        //       card: this.cardElement
-        //     }
-        //   }).then((result : any) => {
-        //       console.log('Payment succeeded!');
-        //       this.dialogRef.close();
-        //     }
-        //   ) 
+        console.log('confirmPayment response: ' + response.message);
         this.stripe.confirmPayment({
           elements: this.elements,
           confirmParams: {
             return_url: 'http://localhost:4200',
           }
         });
-      })
+      }
+    );
   }
-
 }
