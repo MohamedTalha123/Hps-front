@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import Keycloak, { KeycloakProfile } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 import { HttpClient } from '@angular/common/http';
 import { UserProfile } from './user-profile';
 import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -38,22 +39,25 @@ export class KeycloakService {
       this._profile.token = this.keycloak.token || '';
 
       if (this.keycloak.tokenParsed) {
+        const email = this._profile.email;
         const attributes = this.keycloak.tokenParsed['phone'];
         if (attributes) {
           this._profile.phone = attributes as string;
         }
+
+        if (email) {
+          // Fetch the user ID from your backend using the email
+          const userInfo = await firstValueFrom(this.fetchAdditionalUserInfo(email));
+          this._profile.id = userInfo.id;
+          this._profile.phone = userInfo.phone;
+        }
       }
     }
   }
-  // this.fetchAdditionalUserInfo(this._profile.email!).subscribe(userInfo => {
-  //   this._profile!.id = userInfo.id;
-  //   this._profile!.phone = userInfo.phone;
-  // });
 
   fetchAdditionalUserInfo(email: string): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`http://localhost:8091/api/v1/users/email=${email}`);
+    return this.http.get<UserProfile>(`http://localhost:8091/api/v1/users/email/${email}`);
   }
-
 
   login() {
     return this.keycloak.login();

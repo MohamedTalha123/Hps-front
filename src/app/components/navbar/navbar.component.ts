@@ -146,17 +146,14 @@ export class NavbarComponent implements OnInit {
     const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
     if (currentScrollTop > this.lastScrollTop && currentScrollTop > this.navbarHeight) {
-      // Scrolling down and past the navbar
       if (!this.isNavbarHidden) {
         this.isNavbarHidden = true;
         this.hidePosition = currentScrollTop;
       }
     } else if (currentScrollTop < this.lastScrollTop) {
-      // Scrolling up
       this.isNavbarHidden = false;
     }
 
-    // Check if we've scrolled past the threshold from where the navbar was hidden
     if (this.isNavbarHidden && currentScrollTop > (this.hidePosition + this.scrollThreshold)) {
       this.isNavbarHidden = false;
     }
@@ -184,9 +181,7 @@ export class NavbarComponent implements OnInit {
   }
   onSearchInput() {
     this.searchSubject.next(this.searchQuery);
-    console.log("phone :::"+this.keycloakService.profile?.phone);
-    console.log("user id :::"+this.keycloakService.profile?.email);
-    
+   
 
   }
 
@@ -204,23 +199,27 @@ export class NavbarComponent implements OnInit {
     this.searchResults = [];
   }
   checkout() {
-    // Supposons que l'ID de l'utilisateur connecté soit récupéré depuis un service d'authentification
-    //const clientId = this.authService.getCurrentUser().id;
-
     this.checkoutService.getCurrentOrder().subscribe(order => {
       if (order) {
         const orderId = order.id;
+        const userId = this.keycloakService.profile?.id;
+
+        
         const billRequest: BillRequest = {
           phone: this.keycloakService.profile?.phone || 'default-phone-number',
-          clientId: "1",//this.keycloakService.profile?.id || 0,
+          clientId: String(this.keycloakService.profile?.id || '0'), 
           orderId: orderId,
           amount: this.cartTotal
-        }
-
+        };
+  
         this.checkoutService.createBill(billRequest).subscribe(
           response => {
             if (response) {
-              this.checkoutService.createPaymentIntent({ amount: this.cartTotal * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+              this.checkoutService.createPaymentIntent({
+                amount: this.cartTotal * 10,
+                currency: 'USD',
+                receiptEmail: this.keycloakService.profile?.email || ''
+              }).subscribe(
                 PaymentResponse => {
                   this.secretKey = PaymentResponse.client_secret;
                   if (this.secretKey) {
@@ -230,11 +229,14 @@ export class NavbarComponent implements OnInit {
                       height: '400px'
                     });
                   }
-                });
+                }
+              );
             }
-          });
+          }
+        );
       }
     });
   }
+  
 
 }
