@@ -66,4 +66,11 @@ export class KeycloakService {
   logout() {
     return this.keycloak.logout({ redirectUri: 'http://localhost:4200' });
   }
+  isLoggedIn(): boolean {
+    return this.keycloak.authenticated ?? false;
+  }
+  
+  getUsername(): string | undefined {
+    return this.keycloak.tokenParsed?.['preferred_username'];
+  }
 }

@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,OnDestroy } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product, Sexe,ProductResponse } from '../../entity/product';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductPreviewPopupComponent } from '../product-preview-popup/product-preview-popup.component';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { BrandService } from "../../services/brand.service";
 import { Brand } from '../../entity/brand';
-import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { FilterService } from '../../services/filter.service';
 
 @Component({
   selector: 'app-product-list',
@@ -27,6 +29,10 @@ export class ProductListComponent implements OnInit {
   selectedFilters: { type: string; value: any }[] = [];
   sortOptions = ['Price: Low to High', 'Price: High to Low'];
   selectedSort = '';
+  private routerSubscription: Subscription | undefined;
+  private filterSubscription: Subscription | undefined;
+
+
 
   constructor(
     private productService: ProductService,
@@ -34,12 +40,40 @@ export class ProductListComponent implements OnInit {
     private router: Router,
     private brandService: BrandService,
     private route: ActivatedRoute,
+    private filterService: FilterService
+
 
   ) { }
 
   ngOnInit(): void {
-    this.loadProducts();
-    this.loadBrands();
+
+
+    this.loadProductsAndApplyFilters();
+
+    // Subscribe to router events to handle navigation within the product list
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.loadProductsAndApplyFilters();
+    });
+  
+      this.loadBrands();
+
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+  resetFilters(): void {
+    this.selectedFilters = [];
+    this.filteredProducts = this.products;
+    this.updatePagedProducts();
+  }
+
+  applyInitialFilters(): void {
+    this.selectedFilters = []; // Clear existing filters
     this.route.queryParams.subscribe(params => {
       if (params['brand']) {
         this.applyFilter('brand', params['brand']);
@@ -103,6 +137,35 @@ export class ProductListComponent implements OnInit {
     this.updatePagedProducts();
   }
 
+  loadProductsAndApplyFilters(): void {
+    this.productService.getAllProducts().subscribe(
+      products => {
+        this.products = products;
+        console.log('Products received:', products);
+        this.filteredProducts = this.products;
+        this.updatePriceRange();
+        this.applyFiltersFromUrl();
+        this.updatePagedProducts();
+      },
+      error => console.error('Error loading products:', error)
+    );
+  }
+
+  applyFiltersFromUrl(): void {
+    this.route.queryParams.subscribe(params => {
+      this.selectedFilters = []; // Clear existing filters
+      if (params['brand']) {
+        this.applyFilter('brand', params['brand']);
+      }
+      if (params['gender']) {
+        this.applyFilter('gender', params['gender']);
+      }
+      if (params['search']) {
+        this.applyFilter('search', params['search']);
+      }
+    });
+  }
+
   applyFilter(type: string, value: any) {
     const existingFilterIndex = this.selectedFilters.findIndex(f => f.type === type);
     if (existingFilterIndex !== -1) {
@@ -113,10 +176,6 @@ export class ProductListComponent implements OnInit {
     this.applyFilters();
   }
 
-  removeFilter(filter: { type: string; value: any }) {
-    this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
-    this.applyFilters();
-  }
   applyFilters() {
     this.filteredProducts = this.products.filter(product => {
       return this.selectedFilters.every(filter => {
@@ -134,8 +193,12 @@ export class ProductListComponent implements OnInit {
         }
       });
     });
-    this.applySorting();
     this.updatePagedProducts();
+    this.applySorting();
+  }
+  removeFilter(filter: { type: string; value: any }) {
+    this.selectedFilters = this.selectedFilters.filter(f => f !== filter);
+    this.applyFilters();
   }
 
   applyPriceFilter() {

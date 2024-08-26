@@ -13,6 +13,8 @@ import { BillRequest } from '../../entity/Bill';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { MatDialog } from '@angular/material/dialog';
 import { KeycloakService } from '../../services/keycloak/keycloak.service';
+import { FilterService } from '../../services/filter.service';
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -36,6 +38,10 @@ export class NavbarComponent implements OnInit {
   searchQuery: string = '';
   searchResults: ProductResponse[] = [];
   secretKey !: string;
+  isSearchDropdownVisible: boolean = false;
+  isLoggedIn: boolean = false;
+  username: string | undefined;
+
 
   private searchSubject = new Subject<string>();
 
@@ -48,13 +54,18 @@ export class NavbarComponent implements OnInit {
     private router: Router,
     private keycloakService: KeycloakService,
     private checkoutService: CheckoutService,
-    private dialog: MatDialog,) { }
+    private dialog: MatDialog,
+    private filterService: FilterService
+
+  ) { }
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
       this.cartItems = items;
       this.cartItemsCount = items.length;
       this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
+      this.isLoggedIn = this.keycloakService.isLoggedIn();
+    this.username = this.keycloakService.getUsername();
     });
 
     this.checkoutService.getCurrentOrder().subscribe(response => {
@@ -70,6 +81,7 @@ export class NavbarComponent implements OnInit {
         })
       }
     })
+    
 
     this.searchSubject.pipe(
       debounceTime(300),
@@ -78,6 +90,13 @@ export class NavbarComponent implements OnInit {
     ).subscribe(results => {
       this.searchResults = results.slice(0, 5);
     });
+  }
+  login() {
+    this.keycloakService.login();
+  }
+
+  logout() {
+    this.keycloakService.logout();
   }
   loadBrands() {
     this.brandService.getAllBrands().subscribe(
@@ -181,14 +200,15 @@ export class NavbarComponent implements OnInit {
   }
   onSearchInput() {
     this.searchSubject.next(this.searchQuery);
-   
+    this.isSearchDropdownVisible = this.searchQuery.length > 0;
+
 
   }
 
   onSearch() {
     if (this.searchQuery) {
       this.router.navigate(['/products'], { queryParams: { search: this.searchQuery } });
-      this.searchResults = []; 
+      this.searchResults = []; // Clear results after search
 
     }
   }
@@ -238,5 +258,13 @@ export class NavbarComponent implements OnInit {
     });
   }
   
-
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const searchElement = document.querySelector('.search-container');
+    if (searchElement && !searchElement.contains(event.target as Node)) {
+      this.isSearchDropdownVisible = false;
+      this.searchQuery = '';
+      this.searchResults = [];
+    }
+  }
 }

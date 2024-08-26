@@ -1,22 +1,19 @@
-<nav
-  class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur-sm transition-transform duration-300 ease-in-out"
-  [ngClass]="{'transform -translate-y-full': isNavbarHidden}">
-  <div class="w-full flex justify-center">
-    <div class="container w-4/5 px-4">
-      <div class="flex justify-between items-center py-4">
-        <a href="#" class="flex items-center" (click)="selectOption('home')">
-          <img src="../../../assets/images/logo.png" class="h-12 w-auto mr-3" alt="Logo">
-          <span class="text-xl font-semibold">E-Commerce</span>
-        </a>
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur-sm transition-transform duration-300 ease-in-out"
+     [ngClass]="{'transform -translate-y-full': isNavbarHidden}">
+  <div class="container mx-auto w-11/12"> <!-- Changed to w-11/12 for 90% width -->
+    <div class="flex justify-between items-center py-4">
+      <a  routerLink="/" class="flex items-center" (click)="selectOption('home')">
+        <img src="../../../assets/images/logo.png" class="h-12 w-auto mr-3" alt="Logo">
+        <span class="text-xl font-semibold">E-Commerce</span>
+      </a>
+      <button (click)="toggleNavbar()" class="lg:hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+        </svg>
+      </button>
 
-        <button (click)="toggleNavbar()" class="lg:hidden">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-          </svg>
-        </button>
-
-        <div class="hidden lg:flex lg:items-center lg:w-auto"
-          [ngClass]="{'hidden': isMenuCollapsed, 'block': !isMenuCollapsed}">
+      <div class="hidden lg:flex lg:items-center lg:w-auto"
+           [ngClass]="{'hidden': isMenuCollapsed, 'block': !isMenuCollapsed}">
           <ul class="flex flex-col lg:flex-row lg:space-x-4">
             <li><a routerLink="/" class="block py-2 hover:text-black"
                 [ngClass]="{'text-gray-500': selectedOption !== 'home', 'text-black': selectedOption === 'home'}"
@@ -31,43 +28,45 @@
                 [ngClass]="{'text-gray-500': selectedOption !== 'women', 'text-black': selectedOption === 'women'}"
                 (click)="navigateTo('/products', {type: 'gender', value: 'FEMALE'})">FOR WOMEN</a></li>
             <li class="relative" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
-              <a href="#" class="block py-2 hover:text-black"
+              <a routerLink="/products" class="block py-2 hover:text-black"
                 [ngClass]="{'text-gray-500': selectedOption !== 'brands', 'text-black': selectedOption === 'brands'}"
-                (click)="selectOption('brands')">BRANDS</a>
+                (click)="selectOption('products')">BRANDS</a>
               <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg py-2 z-10 transition-opacity duration-300"
                 [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisible, 'opacity-100 visible': isBrandsDropdownVisible}">
                 <!-- Brand options -->
-                <a *ngFor="let brand of brands" href="#" class="block px-4 py-2 hover:bg-gray-100"
+                <a *ngFor="let brand of brands" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   (click)="selectBrand(brand.name)">{{ brand.name }}</a>
               </div>
             </li>
-            <li><a routerLink="/contact" class="block py-2 hover:text-black"
-                [ngClass]="{'text-gray-500': selectedOption !== 'contact', 'text-black': selectedOption === 'contact'}"
-                (click)="navigateTo('/contact')">CONTACT</a></li>
+            <li><a routerLink="/about-us" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'about-us', 'text-black': selectedOption === 'about-us'}"
+                (click)="navigateTo('/about-us')">ABOUT-US</a></li>
           </ul>
         </div>
 
         <div class="hidden lg:flex items-center space-x-4">
-          <!-- Replace the existing search form with this -->
-          <form class="flex relative" (ngSubmit)="onSearch()">
-            <input type="search" [(ngModel)]="searchQuery" name="search" placeholder="Search" (input)="onSearchInput()"
-              class="px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
-            <button type="submit"
-              class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Search</button>
+          <div class="search-container relative">
+              <form class="flex relative" (ngSubmit)="onSearch()">
+              <input type="search" [(ngModel)]="searchQuery" name="search" placeholder="Search"
+                  (input)="onSearchInput()"
+                  class="px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+              <button type="submit"
+                  class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Search</button>
 
-            <!-- Dropdown for search results -->
-            <div *ngIf="searchResults.length > 0"
-              class="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-md mt-1 z-50 max-h-60 overflow-y-auto">
-              <div *ngFor="let product of searchResults" class="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
-                (click)="navigateToProduct(product)">
-                <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover mr-2">
-                <div class="flex-grow">
-                  <div class="font-semibold">{{ product.name }}</div>
-                  <div class="text-sm text-gray-600">{{ product.price }} DH</div>
-                </div>
+              <!-- Dropdown for search results -->
+              <div *ngIf="isSearchDropdownVisible && searchResults.length > 0"
+                  class="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-md mt-1 z-50 max-h-60 overflow-y-auto">
+                  <div *ngFor="let product of searchResults"
+                      class="flex items-center p-2 hover:bg-gray-100 cursor-pointer">
+                      <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover mr-2">
+                      <div class="flex-grow">
+                          <div class="font-semibold">{{ product.name }}</div>
+                          <div class="text-sm text-gray-600">{{ product.price }}</div>
+                      </div>
+                  </div>
               </div>
-            </div>
           </form>
+          </div>
 
           <div class="relative" (mouseenter)="showCartDropdown()" (mouseleave)="hideCartDropdown()">
             <a routerLink="/cart" class="text-gray-600 hover:text-gray-900 flex items-center"
@@ -104,9 +103,15 @@
               </div>
             </div>
           </div>
-          <a href="#" class="text-gray-600 hover:text-gray-900">SIGN UP / LOG IN</a>
+          <ng-container *ngIf="!isLoggedIn; else loggedInTemplate">
+            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm" (click)="login()">SIGN UP / LOG IN</a>
+          </ng-container>
+        
+          <ng-template #loggedInTemplate>
+            <span class="text-gray-600 text-sm">Welcome, {{ username }}</span>
+            <a href="#" class="text-gray-600 hover:text-gray-900 text-sm ml-2" (click)="logout()">LOGOUT</a>
+          </ng-template>
         </div>
       </div>
     </div>
-  </div>
 </nav>
