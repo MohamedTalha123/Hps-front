@@ -1,4 +1,4 @@
-import { Component, HostListener,OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CartItem } from '../../entity/cart';
 import { CartService } from '../../services/cart.service';
 import { Router } from '@angular/router';
@@ -7,7 +7,12 @@ import { Brand } from '../../entity/brand';
 import { ProductService } from '../../services/product.service';
 import { Product, ProductResponse } from '../../entity/product';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { CheckoutService } from '../../services/checkout.service';
+import { BillRequest } from '../../entity/Bill';
+import { CheckoutComponent } from '../checkout/checkout.component';
+import { MatDialog } from '@angular/material/dialog';
+import { KeycloakService } from '../../services/keycloak/keycloak.service';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -20,8 +25,8 @@ export class NavbarComponent implements OnInit {
   isBrandsDropdownVisible = false;
   dropdownTimeout: any;
   lastScrollTop = 0;
-  navbarHeight = 70; // Adjust this to match your navbar's height
-  scrollThreshold = 200; // Adjust this value to change when the navbar reappears
+  navbarHeight = 70;
+  scrollThreshold = 200;
   hidePosition = 0;
   cartItems: CartItem[] = [];
   cartItemsCount: number = 0;
@@ -30,27 +35,48 @@ export class NavbarComponent implements OnInit {
   cartDropdownTimeout: any;
   searchQuery: string = '';
   searchResults: ProductResponse[] = [];
+  secretKey !: string;
+
   private searchSubject = new Subject<string>();
 
+  public cartSubject = new BehaviorSubject<any>(null);
 
-  // New state to track which option is selected
   selectedOption: string = 'home';
-  constructor(private cartService: CartService,    private brandService: BrandService,     private productService: ProductService, private router: Router) {}
+
+  constructor(private cartService: CartService, private brandService: BrandService,
+    private productService: ProductService,
+    private router: Router,
+    private keycloakService: KeycloakService,
+    private checkoutService: CheckoutService,
+    private dialog: MatDialog,) { }
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
       this.cartItems = items;
-      this.cartItemsCount = this.cartService.getTotalItems();
-      this.cartTotal = this.cartService.getTotal();
-      this.loadBrands();
-
+      this.cartItemsCount = items.length;
+      this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
     });
+
+    this.checkoutService.getCurrentOrder().subscribe(response => {
+      if (response) {
+        this.checkoutService.getCurrentOrderLineItems().subscribe(lineItems => {
+          this.cartSubject.next(lineItems);
+          this.cartItems = lineItems;
+          this.cartItemsCount = lineItems.length;
+          this.cartTotal = response?.totalAmount;
+
+          this.cartService.updateCartItems(this.cartItems);
+          this.loadBrands();
+        })
+      }
+    })
+
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => this.productService.searchProducts(query))
     ).subscribe(results => {
-      this.searchResults = results.slice(0, 5); // Limit to 5 results
+      this.searchResults = results.slice(0, 5);
     });
   }
   loadBrands() {
@@ -63,7 +89,6 @@ export class NavbarComponent implements OnInit {
       }
     );
   }
-  
 
   navigateTo(route: string, filter?: { type: string, value: any }) {
     if (filter) {
@@ -78,7 +103,7 @@ export class NavbarComponent implements OnInit {
     this.selectedOption = 'brands';
     this.navigateTo('/products', { type: 'brand', value: brand });
   }
-  
+
   showCartDropdown() {
     clearTimeout(this.cartDropdownTimeout);
     this.isCartDropdownVisible = true;
@@ -87,10 +112,27 @@ export class NavbarComponent implements OnInit {
   hideCartDropdown() {
     this.cartDropdownTimeout = setTimeout(() => {
       this.isCartDropdownVisible = false;
-    }, 200); // 200ms delay before hiding
+    }, 200);
+  }
+
+  removeFromCart(productId: number, quantity: number) {
+    this.cartService.updateOrder({
+      product_id: productId,
+      quantity: quantity
+    }).subscribe(response => {
+      if (response) {
+        console.log(response);
+        this.cartService.removeFromCart(productId);
+
+        this.cartService.cart$.subscribe(items => {
+          this.cartSubject.next(items);
+
+          this.cartItems = this.cartSubject.value;
+          this.cartItemsCount = items.length;
+          this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
+        });
       }
-  removeFromCart(productId: number) {
-    this.cartService.removeFromCart(productId);
+    })
   }
 
   toggleCartDropdown() {
@@ -134,7 +176,7 @@ export class NavbarComponent implements OnInit {
   hideBrandsDropdown() {
     this.dropdownTimeout = setTimeout(() => {
       this.isBrandsDropdownVisible = false;
-    }, 200); // 200ms delay before hiding
+    }, 200); 
   }
 
   selectOption(option: string) {
@@ -142,12 +184,17 @@ export class NavbarComponent implements OnInit {
   }
   onSearchInput() {
     this.searchSubject.next(this.searchQuery);
+    console.log("phone :::"+this.keycloakService.profile?.phone);
+    console.log("user id :::"+this.keycloakService.profile?.email);
+    
+
   }
 
   onSearch() {
     if (this.searchQuery) {
       this.router.navigate(['/products'], { queryParams: { search: this.searchQuery } });
-      this.searchResults = []; // Clear results after search
+      this.searchResults = []; 
+
     }
   }
 
@@ -156,4 +203,38 @@ export class NavbarComponent implements OnInit {
     this.searchQuery = '';
     this.searchResults = [];
   }
+  checkout() {
+    // Supposons que l'ID de l'utilisateur connecté soit récupéré depuis un service d'authentification
+    //const clientId = this.authService.getCurrentUser().id;
+
+    this.checkoutService.getCurrentOrder().subscribe(order => {
+      if (order) {
+        const orderId = order.id;
+        const billRequest: BillRequest = {
+          phone: this.keycloakService.profile?.phone || 'default-phone-number',
+          clientId: "1",//this.keycloakService.profile?.id || 0,
+          orderId: orderId,
+          amount: this.cartTotal
+        }
+
+        this.checkoutService.createBill(billRequest).subscribe(
+          response => {
+            if (response) {
+              this.checkoutService.createPaymentIntent({ amount: this.cartTotal * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+                PaymentResponse => {
+                  this.secretKey = PaymentResponse.client_secret;
+                  if (this.secretKey) {
+                    this.dialog.open(CheckoutComponent, {
+                      data: this.secretKey,
+                      width: '800px',
+                      height: '400px'
+                    });
+                  }
+                });
+            }
+          });
+      }
+    });
+  }
+
 }

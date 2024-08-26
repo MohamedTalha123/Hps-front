@@ -20,7 +20,7 @@
         </button>
       </div>
       <p *ngIf="maxQuantityError" class="error-message">You can't surpass the available quantity.</p>
-      <button mat-raised-button color="accent" (click)="onCheckout()">ADD TO CART </button>
+      <button mat-raised-button color="accent" (click)="addToCart()">ADD TO CART </button>
       <p class="categories">Categories: {{ product.brandName }}, {{ product.sexe }}</p>
       <div class="product-description">
         <h2>Description</h2>

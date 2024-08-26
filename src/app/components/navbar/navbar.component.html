@@ -1,4 +1,6 @@
-<nav class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur-sm transition-transform duration-300 ease-in-out" [ngClass]="{'transform -translate-y-full': isNavbarHidden}">
+<nav
+  class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur-sm transition-transform duration-300 ease-in-out"
+  [ngClass]="{'transform -translate-y-full': isNavbarHidden}">
   <div class="w-full flex justify-center">
     <div class="container w-4/5 px-4">
       <div class="flex justify-between items-center py-4">
@@ -13,77 +15,95 @@
           </svg>
         </button>
 
-        <div class="hidden lg:flex lg:items-center lg:w-auto" [ngClass]="{'hidden': isMenuCollapsed, 'block': !isMenuCollapsed}">
+        <div class="hidden lg:flex lg:items-center lg:w-auto"
+          [ngClass]="{'hidden': isMenuCollapsed, 'block': !isMenuCollapsed}">
           <ul class="flex flex-col lg:flex-row lg:space-x-4">
-            <li><a routerLink="/" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'home', 'text-black': selectedOption === 'home'}" (click)="navigateTo('/')">HOME</a></li>
-            <li><a routerLink="/products" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'products', 'text-black': selectedOption === 'products'}" (click)="navigateTo('/products')">PRODUCTS</a></li>
-            <li><a routerLink="/products" [queryParams]="{gender: 'MALE'}" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'men', 'text-black': selectedOption === 'men'}" (click)="navigateTo('/products', {type: 'gender', value: 'MALE'})">FOR MEN</a></li>
-            <li><a routerLink="/products" [queryParams]="{gender: 'FEMALE'}" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'women', 'text-black': selectedOption === 'women'}" (click)="navigateTo('/products', {type: 'gender', value: 'FEMALE'})">FOR WOMEN</a></li>
+            <li><a routerLink="/" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'home', 'text-black': selectedOption === 'home'}"
+                (click)="navigateTo('/')">HOME</a></li>
+            <li><a routerLink="/products" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'products', 'text-black': selectedOption === 'products'}"
+                (click)="navigateTo('/products')">PRODUCTS</a></li>
+            <li><a routerLink="/products" [queryParams]="{gender: 'MALE'}" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'men', 'text-black': selectedOption === 'men'}"
+                (click)="navigateTo('/products', {type: 'gender', value: 'MALE'})">FOR MEN</a></li>
+            <li><a routerLink="/products" [queryParams]="{gender: 'FEMALE'}" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'women', 'text-black': selectedOption === 'women'}"
+                (click)="navigateTo('/products', {type: 'gender', value: 'FEMALE'})">FOR WOMEN</a></li>
             <li class="relative" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
-              <a href="#" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'brands', 'text-black': selectedOption === 'brands'}" (click)="selectOption('brands')">BRANDS</a>
+              <a href="#" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'brands', 'text-black': selectedOption === 'brands'}"
+                (click)="selectOption('brands')">BRANDS</a>
               <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg py-2 z-10 transition-opacity duration-300"
-                   [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisible, 'opacity-100 visible': isBrandsDropdownVisible}">
+                [ngClass]="{'opacity-0 invisible': !isBrandsDropdownVisible, 'opacity-100 visible': isBrandsDropdownVisible}">
                 <!-- Brand options -->
-                <a *ngFor="let brand of brands" href="#" class="block px-4 py-2 hover:bg-gray-100" (click)="selectBrand(brand.name)">{{ brand.name }}</a>
+                <a *ngFor="let brand of brands" href="#" class="block px-4 py-2 hover:bg-gray-100"
+                  (click)="selectBrand(brand.name)">{{ brand.name }}</a>
               </div>
             </li>
-            <li><a routerLink="/contact" class="block py-2 hover:text-black" [ngClass]="{'text-gray-500': selectedOption !== 'contact', 'text-black': selectedOption === 'contact'}" (click)="navigateTo('/contact')">CONTACT</a></li>
+            <li><a routerLink="/contact" class="block py-2 hover:text-black"
+                [ngClass]="{'text-gray-500': selectedOption !== 'contact', 'text-black': selectedOption === 'contact'}"
+                (click)="navigateTo('/contact')">CONTACT</a></li>
           </ul>
         </div>
 
         <div class="hidden lg:flex items-center space-x-4">
-<!-- Replace the existing search form with this -->
-<form class="flex relative" (ngSubmit)="onSearch()">
-  <input type="search" [(ngModel)]="searchQuery" name="search" placeholder="Search" 
-         (input)="onSearchInput()"
-         class="px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
-  <button type="submit" class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Search</button>
+          <!-- Replace the existing search form with this -->
+          <form class="flex relative" (ngSubmit)="onSearch()">
+            <input type="search" [(ngModel)]="searchQuery" name="search" placeholder="Search" (input)="onSearchInput()"
+              class="px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button type="submit"
+              class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Search</button>
 
-  <!-- Dropdown for search results -->
-  <div *ngIf="searchResults.length > 0" class="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-md mt-1 z-50 max-h-60 overflow-y-auto">
-    <div *ngFor="let product of searchResults" 
-         class="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
-         (click)="navigateToProduct(product)">
-      <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover mr-2">
-      <div class="flex-grow">
-        <div class="font-semibold">{{ product.name }}</div>
-        <div class="text-sm text-gray-600">{{ product.price  }} DH</div>
-      </div>
-    </div>
-  </div>
-</form>
+            <!-- Dropdown for search results -->
+            <div *ngIf="searchResults.length > 0"
+              class="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-md mt-1 z-50 max-h-60 overflow-y-auto">
+              <div *ngFor="let product of searchResults" class="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                (click)="navigateToProduct(product)">
+                <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover mr-2">
+                <div class="flex-grow">
+                  <div class="font-semibold">{{ product.name }}</div>
+                  <div class="text-sm text-gray-600">{{ product.price }} DH</div>
+                </div>
+              </div>
+            </div>
+          </form>
 
-<div class="relative" (mouseenter)="showCartDropdown()" (mouseleave)="hideCartDropdown()">
-  <a routerLink="/cart" class="text-gray-600 hover:text-gray-900 flex items-center" (click)="toggleCartDropdown(); $event.preventDefault()">
-    <i class="fas fa-shopping-basket"></i>
-    <span class="ml-1">{{ cartTotal }} DH</span>
-    <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-      {{ cartItemsCount }}
-    </span>
-  </a>
-  <div class="absolute right-0 mt-2 w-80 bg-white shadow-lg py-2 z-10 transition-opacity duration-300"
-       [ngClass]="{'opacity-0 invisible': !isCartDropdownVisible, 'opacity-100 visible': isCartDropdownVisible}">
-    <div *ngFor="let item of cartItems" class="px-4 py-2 flex items-center justify-between border-b">
-      <div class="flex items-center">
-        <img [src]="item.product.imageUrl" alt="{{ item.product.name }}" class="w-12 h-12 object-cover mr-2">
-        <div>
-          <div class="font-semibold">{{ item.product.name }}</div>
-          <div class="text-sm text-gray-600">{{ item.quantity }} x {{ item.product.price  }} DH </div>
-        </div>
-      </div>
-      <button (click)="removeFromCart(item.product.id)" class="text-red-500 hover:text-red-700">
-        <i class="fas fa-trash"></i>
-      </button>
-    </div>
-    <div class="px-4 py-2 font-bold text-lg border-t">
-      Total: {{ cartTotal  }} DH
-    </div>
-    <div class="px-4 py-2">
-      <button routerLink="/cart" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW CART</button>
-      <button routerLink="/checkout" class="w-full px-4 py-2 bg-orange-500 text-white hover:bg-orange-600">CHECKOUT</button>
-    </div>
-  </div>
-</div>
+          <div class="relative" (mouseenter)="showCartDropdown()" (mouseleave)="hideCartDropdown()">
+            <a routerLink="/cart" class="text-gray-600 hover:text-gray-900 flex items-center"
+              (click)="toggleCartDropdown(); $event.preventDefault()">
+              <i class="fas fa-shopping-basket"></i>
+              <span class="ml-1">{{ cartTotal }} DH</span>
+              <span
+                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                {{ cartItemsCount }}
+              </span>
+            </a>
+            <div class="absolute right-0 mt-2 w-80 bg-white shadow-lg py-2 z-10 transition-opacity duration-300"
+              [ngClass]="{'opacity-0 invisible': !isCartDropdownVisible, 'opacity-100 visible': isCartDropdownVisible}">
+              <div *ngFor="let item of cartItems" class="px-4 py-2 flex items-center justify-between border-b">
+                <div class="flex items-center">
+                  <img [src]="item.product.imageUrl" alt="{{ item.product.name }}" class="w-12 h-12 object-cover mr-2">
+                  <div>
+                    <div class="font-semibold">{{ item.product.name }}</div>
+                    <div class="text-sm text-gray-600">{{ item.quantity }} x {{ item.product.price }} DH </div>
+                  </div>
+                </div>
+                <button (click)="removeFromCart(item.product.id,item.quantity)" class="text-red-500 hover:text-red-700">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+              <div class="px-4 py-2 font-bold text-lg border-t">
+                Total: {{ cartTotal }} DH
+              </div>
+              <div class="px-4 py-2">
+                <button routerLink="/cart" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW
+                  CART</button>
+                <button (click)="checkout()"
+                  class="w-full px-4 py-2 bg-orange-500 text-white hover:bg-orange-600">CHECKOUT</button>
+              </div>
+            </div>
+          </div>
           <a href="#" class="text-gray-600 hover:text-gray-900">SIGN UP / LOG IN</a>
         </div>
       </div>

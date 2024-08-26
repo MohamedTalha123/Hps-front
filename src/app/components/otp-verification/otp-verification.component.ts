@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { OtpService } from '../../services/otp.service';
+import { CheckoutService } from '../../services/checkout.service';
 
 @Component({
   selector: 'app-otp-verification',
@@ -10,15 +11,13 @@ export class OtpVerificationComponent {
   otpMsg !: string;
 
 
-  constructor(private otpService: OtpService) {
+  constructor(private checkoutService: CheckoutService) {
   }
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
   submit(): void {
-    //this.otpService.confirmPayment(this.otpMsg).subscribe();
+    this.checkoutService.confirmBillPayment(this.otpMsg).subscribe();
   }
 
 

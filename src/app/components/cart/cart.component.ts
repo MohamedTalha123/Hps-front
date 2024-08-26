@@ -1,7 +1,12 @@
 // src/app/components/cart/cart.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
-import {  CartItem} from "../../entity/cart";
+import { CartItem } from "../../entity/cart";
+import { CheckoutService } from '../../services/checkout.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { CheckoutComponent } from '../checkout/checkout.component';
+import { BillRequest } from '../../entity/Bill';
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
@@ -11,7 +16,11 @@ export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
   total: number = 0;
 
-  constructor(private cartService: CartService) {}
+  secretKey !: string;
+
+
+  constructor(private cartService: CartService, private checkoutService: CheckoutService, private router: Router, private route: ActivatedRoute, private dialog: MatDialog,
+  ) { }
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
@@ -23,14 +32,28 @@ export class CartComponent implements OnInit {
   }
 
   updateQuantity(item: CartItem, change: number) {
-    const newQuantity = item.quantity + change;
+    let newQuantity = item.quantity + change;
     if (newQuantity > 0 && newQuantity <= item.product.availableQuantity) {
-      this.cartService.updateQuantity(item.product.id, newQuantity);
+
+      this.cartService.updateOrder({
+        product_id: item.product.id,
+        quantity: -change
+      }).subscribe(response => {
+        if (response) {
+          this.cartService.updateQuantity(item.product.id, newQuantity);
+        }
+      })
     }
   }
-
-  removeItem(productId: number) {
-    this.cartService.removeFromCart(productId);
+  removeItem(productId: number, quantity: number) {
+    this.cartService.updateOrder({
+      product_id: productId,
+      quantity: quantity
+    }).subscribe(response => {
+      if (response) {
+        this.cartService.removeFromCart(productId);
+      }
+    })
   }
 
   updateCart() {
@@ -38,4 +61,31 @@ export class CartComponent implements OnInit {
     // The cart is already updated in real-time, so this could be used for additional actions
     console.log('Cart updated');
   }
+
+  openPaymentPopup() {
+    const billRequest: BillRequest = {
+      phone: '0607677381',
+      clientId: '1',
+      orderId: '1',
+      amount: this.total
+    }
+    this.checkoutService.createBill(billRequest).subscribe(
+      response => {
+        if (response) {
+          this.checkoutService.createPaymentIntent({ amount: this.total * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+            PaymentResponse => {
+              this.secretKey = PaymentResponse.client_secret;
+              if (this.secretKey) {
+                this.dialog.open(CheckoutComponent, {
+                  data: this.secretKey,
+                  width: '800px',
+                  height: '400px'
+                });
+              }
+            });
+        }
+      });
+
+  }
+
 }

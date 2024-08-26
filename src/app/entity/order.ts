@@ -1,4 +1,5 @@
 export interface Order {
+    orderLineItems: any;
     id: number;
     reference: string;
     totalAmount: number; 
@@ -12,4 +13,14 @@ export interface OrderRequest {
     quantity: number;
     user_id: number;
   }
+  export interface OrderLineResponse {
+    id: number;
+    orderId: number;
+    productReference: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }
+  
   

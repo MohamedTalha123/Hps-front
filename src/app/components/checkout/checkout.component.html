@@ -1,6 +1,6 @@
 <div id="creditCard" class="form-area">
 
-  <h3>Credit or Debit Card</h3>
+  <h3 class="text-2xl font-bold text-center">Credit or Debit Card</h3>
 
   <div id="card-element">
     <!-- a Stripe element will be inserted here -->
@@ -8,8 +8,55 @@
 
   <!-- Used to display form errors -->
   <div id="card-errors" class="displayError.textContent!=='': 'alert alert-danger mt-1'"></div>
-
 </div>
-<br/>
-<button class="btn btn-confirm" (click)="onSubmit()">Confirm </button>
-<app-otp-verification></app-otp-verification>
+<button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2" (click)="payBill()">Confirm
+  Payment</button>
+
+<div *ngIf="otpSent">
+  <div class="otp-config">
+    <div class="text-center">
+      <img src="../../../assets/images/msg.png" class="rounded-circle avatar-lg img-thumbnail mb-3" alt="profile-image">
+      <h2 class="text">Verfication code</h2>
+      <p class="mb-3">Please enter the 5-digits code you recieved.</p>
+      <form #form="ngForm">
+        <ng-otp-input (onInputChange)="onOtpChange($event)" [config]="{length:5}"></ng-otp-input>
+        <div class="text-center">
+          <button type="button" (click)="onSubmitOtp()" class="btn btn-sm pay-button my-4">Submit Otp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- <app-otp-verification *ngIf=""></app-otp-verification> -->
+
+<!-- Modal -->
+<!-- <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="staticBackdropLabel">Confirm Payment</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12 col-md-7 mx-auto my-auto">
+            <div class="card">
+              <div class="card-body px-lg-5 py-lg-5 text-center">
+                <img src="../../../assets/images/msg.png" class="rounded-circle avatar-lg img-thumbnail mb-4"
+                  alt="profile-image">
+                <h2 class="text">Verfication code</h2>
+                <p class="mb-4">Please enter the 5-digits code you recieved.</p>
+                <form #form="ngForm">
+                  <ng-otp-input (onInputChange)="onOtpChange($event)" [config]="{length:5}"></ng-otp-input>
+                  <div class="text-center">
+                    <button type="button" (click)="onSubmitOtp()" class="btn btn-sm pay-button my-4">Submit Otp</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->

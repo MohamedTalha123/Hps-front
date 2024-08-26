@@ -4,6 +4,8 @@ import { ProductService } from '../../services/product.service';
 import { ProductResponse } from '../../entity/product';
 import { CartService } from '../../services/cart.service';
 import { Subscription, filter } from 'rxjs';
+import { CheckoutService } from '../../services/checkout.service';
+import { response } from 'express';
 
 @Component({
   selector: 'app-product-page',
@@ -22,7 +24,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private checkoutService: CheckoutService
   ) { }
 
   ngOnInit() {
@@ -76,7 +79,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       })
     );
   }
-    
+
 
 
   increaseQuantity() {
@@ -95,8 +98,17 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCheckout() {
-    this.router.navigate(['/checkout']);  
-
+  addToCart() {
+    this.checkoutService.createOrder(
+      {
+        product_id: this.product?.id,
+        quantity: this.quantity,
+        user_id: 1
+      }
+    ).subscribe(response => {
+       if(response ){
+        this.cartService.addToCart(this.product as ProductResponse, this.quantity);
+       }
+    })
   }
 }

@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProductResponse } from '../../entity/product';
 import { CartService } from '../../services/cart.service';
+import { CheckoutService } from '../../services/checkout.service';
 
 @Component({
   selector: 'app-product-preview-popup',
@@ -15,7 +16,8 @@ export class ProductPreviewPopupComponent {
   constructor(
     public dialogRef: MatDialogRef<ProductPreviewPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public product: ProductResponse,
-    private cartService: CartService
+    private cartService: CartService,
+    private checkoutService : CheckoutService
   ) {}
 
 
@@ -35,10 +37,20 @@ export class ProductPreviewPopupComponent {
     }
   }
 
-  buyProduct() {
+  addToCart() {
     if (this.product) {
-      this.cartService.addToCart(this.product, this.quantity);
-      console.log(`Buying ${this.quantity} of ${this.product.name}`);
+     // this.cartService.addToCart(this.product, this.quantity);
+     this.checkoutService.createOrder(
+      {
+        product_id: this.product?.id,
+        quantity: this.quantity,
+        user_id: 1
+      }
+    ).subscribe(response => {
+       if(response ){
+        this.cartService.addToCart(this.product as ProductResponse, this.quantity);
+       }
+    })
       this.dialogRef.close();
     } else {
       console.error('Cannot buy: Product is undefined');
