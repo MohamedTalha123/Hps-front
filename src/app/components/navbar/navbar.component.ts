@@ -12,6 +12,7 @@ import { CheckoutService } from '../../services/checkout.service';
 import { BillRequest } from '../../entity/Bill';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { MatDialog } from '@angular/material/dialog';
+import { KeycloakService } from '../../services/keycloak/keycloak.service';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -41,12 +42,13 @@ export class NavbarComponent implements OnInit {
   public cartSubject = new BehaviorSubject<any>(null);
 
   selectedOption: string = 'home';
-  
+
   constructor(private cartService: CartService, private brandService: BrandService,
-    private productService: ProductService, 
-    private router: Router, 
+    private productService: ProductService,
+    private router: Router,
+    private keycloakService: KeycloakService,
     private checkoutService: CheckoutService,
-     private dialog: MatDialog,) { }
+    private dialog: MatDialog,) { }
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
@@ -174,7 +176,7 @@ export class NavbarComponent implements OnInit {
   hideBrandsDropdown() {
     this.dropdownTimeout = setTimeout(() => {
       this.isBrandsDropdownVisible = false;
-    }, 200); // 200ms delay before hiding
+    }, 200); 
   }
 
   selectOption(option: string) {
@@ -182,12 +184,17 @@ export class NavbarComponent implements OnInit {
   }
   onSearchInput() {
     this.searchSubject.next(this.searchQuery);
+    console.log("phone :::"+this.keycloakService.profile?.phone);
+    console.log("user id :::"+this.keycloakService.profile?.email);
+    
+
   }
 
   onSearch() {
     if (this.searchQuery) {
       this.router.navigate(['/products'], { queryParams: { search: this.searchQuery } });
-      this.searchResults = []; // Clear results after search
+      this.searchResults = []; 
+
     }
   }
 
@@ -197,27 +204,37 @@ export class NavbarComponent implements OnInit {
     this.searchResults = [];
   }
   checkout() {
-    const billRequest: BillRequest = {
-      phone: '0607677381',
-      clientId: '1',
-      orderId: '1',
-      amount: this.cartTotal
-    }
-    this.checkoutService.createBill(billRequest).subscribe(
-      response => {
-        if (response) {
-          this.checkoutService.createPaymentIntent({ amount: this.cartTotal * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
-            PaymentResponse => {
-              this.secretKey = PaymentResponse.client_secret;
-              if (this.secretKey) {
-                this.dialog.open(CheckoutComponent, {
-                  data: this.secretKey,
-                  width: '800px',
-                  height: '400px'
-                });
-              }
-            });
+    // Supposons que l'ID de l'utilisateur connecté soit récupéré depuis un service d'authentification
+    //const clientId = this.authService.getCurrentUser().id;
+
+    this.checkoutService.getCurrentOrder().subscribe(order => {
+      if (order) {
+        const orderId = order.id;
+        const billRequest: BillRequest = {
+          phone: this.keycloakService.profile?.phone || 'default-phone-number',
+          clientId: "1",//this.keycloakService.profile?.id || 0,
+          orderId: orderId,
+          amount: this.cartTotal
         }
-      });
+
+        this.checkoutService.createBill(billRequest).subscribe(
+          response => {
+            if (response) {
+              this.checkoutService.createPaymentIntent({ amount: this.cartTotal * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
+                PaymentResponse => {
+                  this.secretKey = PaymentResponse.client_secret;
+                  if (this.secretKey) {
+                    this.dialog.open(CheckoutComponent, {
+                      data: this.secretKey,
+                      width: '800px',
+                      height: '400px'
+                    });
+                  }
+                });
+            }
+          });
+      }
+    });
   }
+
 }
