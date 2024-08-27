@@ -1,10 +1,8 @@
-export interface UserResponse {
+export interface User {
     id: number;
     userName: string;
     lastName: string;
-    password: string;
     email: string;
     role: string;
-    sexe: string;
     phone: string;
 }

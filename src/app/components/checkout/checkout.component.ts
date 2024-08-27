@@ -2,7 +2,6 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { CheckoutService } from "../../services/checkout.service";
 import { environment } from '../../../../environments/environment';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { KeycloakService } from '../../services/keycloak/keycloak.service';
 
 @Component({
   selector: 'app-checkout',
@@ -21,13 +20,16 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private checkoutService: CheckoutService,
     public dialogRef: MatDialogRef<CheckoutComponent>,
-    @Inject(MAT_DIALOG_DATA) public secretKey: string,
-    private keycloakService: KeycloakService  // Inject KeycloakService
+    @Inject(MAT_DIALOG_DATA) public data: {secretKey : string, phone: string},
   ) {}
 
   ngOnInit(): void {
     this.otpSent = false;
-    if (this.secretKey) {
+    console.log('phone ' + this.data.phone);
+    console.log('secret  ' + this.data.secretKey);
+    
+    
+    if (this.data.secretKey) {
       this.setupStripePaymentForm();
     }
   }
@@ -37,7 +39,7 @@ export class CheckoutComponent implements OnInit {
       theme: 'night',
       labels: 'floating'
     };
-    this.elements = this.stripe.elements({ clientSecret: this.secretKey, appearance: appearance });
+    this.elements = this.stripe.elements({ clientSecret: this.data.secretKey, appearance: appearance });
     this.cardElement = this.elements.create('payment');
     this.cardElement.mount('#card-element');
     this.cardElement.on('change', (event: any) => {
@@ -52,9 +54,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   payBill() {
-    const phoneNumber = this.keycloakService.profile?.phone || 'default-phone-number';
-    console.log("the phone number is:::::"+this.keycloakService.profile?.phone);
-    
+    const phoneNumber = this.data.phone;
     this.checkoutService.payBill({ phone: phoneNumber }).subscribe(response => {
       console.log('paybill response: ' + response?.message);
       this.otpSent = true;
@@ -68,7 +68,6 @@ export class CheckoutComponent implements OnInit {
   onSubmitOtp() {
     this.checkoutService.confirmBillPayment(this.otpMsg).subscribe(
       response => {
-        console.log('confirmPayment response: ' + response.message);
         this.stripe.confirmPayment({
           elements: this.elements,
           confirmParams: {

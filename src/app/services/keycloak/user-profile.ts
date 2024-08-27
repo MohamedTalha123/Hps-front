@@ -5,6 +5,4 @@ export interface UserProfile {
   firstName?: string;
   phone?:string;
   lastName?: string;
-  token?: string;
-  role?: string;
 }

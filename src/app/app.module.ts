@@ -39,7 +39,7 @@ import { OtpVerificationComponent } from './components/otp-verification/otp-veri
 import { HttpTokenInterceptor } from './auth/interceptor.interceptor';
 import { initializeKeycloak } from './init/keycloak-init.factory';
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
-import { AuthGuard } from './auth/auth.guard';
+// import { AuthGuard } from './auth/auth.guard';
 // import { KeycloakService } from './services/keycloak/keycloak.service';
 // import { OAuthModule } from 'angular-oauth2-oidc';
 
@@ -104,8 +104,7 @@ import { AuthGuard } from './auth/auth.guard';
       useFactory: initializeKeycloak,
       multi: true
     },
-  
-
+    KeycloakService
   ],
   
   bootstrap: [AppComponent]

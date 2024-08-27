@@ -1,27 +1,38 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProductResponse } from '../../entity/product';
 import { CartService } from '../../services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
-import { KeycloakService } from '../../services/keycloak/keycloak.service';
+import { AuthService } from '../../services/keycloak/keycloak.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../entity/user';
 
 @Component({
   selector: 'app-product-preview-popup',
   templateUrl: './product-preview-popup.component.html',
   styleUrls: ['./product-preview-popup.component.css']
 })
-export class ProductPreviewPopupComponent {
+export class ProductPreviewPopupComponent implements OnInit {
   quantity: number = 1;
   maxQuantityError: boolean = false;
-
+  user !: User;
   constructor(
     public dialogRef: MatDialogRef<ProductPreviewPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public product: ProductResponse,
     private cartService: CartService,
     private checkoutService: CheckoutService,
-    private keycloakService: KeycloakService
+    private userService: UserService
   ) { }
+  authService = inject(AuthService);
 
+  ngOnInit(): void {
+    const isLoggedIn = this.authService.isLoggedIn() as boolean;
+    if (isLoggedIn) {
+      this.userService.user$.subscribe(response => {
+        this.user = response;
+      })
+    }
+  }
 
   increaseQuantity() {
     if (this.quantity < this.product.availableQuantity) {
@@ -39,14 +50,18 @@ export class ProductPreviewPopupComponent {
     }
   }
 
-  async addToCart() {
-    const authenticated = await this.keycloakService.init();
-    if (authenticated && this.product) {
+  addToCart() {
+    if (!this.authService.isLoggedIn()) {
+      this.authService.redirectToLoginPage();
+      return;
+    }
+
+    if (this.product) {
       this.checkoutService.createOrder(
         {
           product_id: this.product?.id,
           quantity: this.quantity,
-          user_id: this.keycloakService.profile?.id as string
+          user_id: this.user?.id
         }
       ).subscribe(response => {
         if (response) {

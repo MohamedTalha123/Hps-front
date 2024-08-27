@@ -1,24 +1,33 @@
-import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { KeycloakService } from '../services/keycloak/keycloak.service';
+import { inject, Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, CanActivateFn } from '@angular/router';
+import { AuthService } from '../services/keycloak/keycloak.service';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard implements CanActivate {
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class AuthGuard implements CanActivate {
 
-  constructor(private router: Router, private keycloakService: KeycloakService) {}
+//   constructor(private router: Router, private keycloakService: KeycloakService) {}
 
-   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-    const isAuthenticated = await this.keycloakService.init();    
-    if (!isAuthenticated ||  this.keycloakService.keycloak.isTokenExpired() ) {
-      this.keycloakService.init();
-      this.keycloakService.keycloak.login();  // Trigger login if not authenticated
-      return false;
-    }
-      return true;
-    }
+//    async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
+//     const isAuthenticated = await this.keycloakService.init();    
+//     if (!isAuthenticated ||  this.keycloakService.keycloak.isTokenExpired() ) {
+//       this.keycloakService.init();
+//       this.keycloakService.keycloak.login();  // Trigger login if not authenticated
+//       return false;
+//     }
+//       return true;
+//     }
+//   }
+
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  if (authService.isLoggedIn()) {
+    return true;
   }
+  authService.redirectToLoginPage();
+  return false;
+};
 
 
 // import { Injectable } from '@angular/core';
@@ -43,9 +52,14 @@ export class AuthGuard implements CanActivate {
     
 //     const roles = this.keycloak.getUserRoles();
 //     const expectedRoles = route.data['roles'] as string[];
-//     if (!this.authenticated || this.keycloak.isTokenExpired() ||  !expectedRoles.some(role => roles.includes(role))){
+//     // if (!this.authenticated || this.keycloak.isTokenExpired() ||  !expectedRoles.some(role => roles.includes(role))){
+//     //   await this.keycloak.login({
+//     //     redirectUri: window.location.origin + state.url,
+//     //   });
+//     // }
+//     if (!this.authenticated) {
 //       await this.keycloak.login({
-//         redirectUri: window.location.origin + state.url,
+//         redirectUri: window.location.origin + state.url
 //       });
 //     }
 

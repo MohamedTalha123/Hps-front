@@ -7,7 +7,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { BillRequest } from '../../entity/Bill';
-import { KeycloakService } from '../../services/keycloak/keycloak.service';
+import { AuthService } from '../../services/keycloak/keycloak.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../entity/user';
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
@@ -16,15 +18,24 @@ import { KeycloakService } from '../../services/keycloak/keycloak.service';
 export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
   total: number = 0;
-
   secretKey !: string;
+  user  !: User;
 
-  constructor(private cartService: CartService, private checkoutService: CheckoutService, private router: Router, private route: ActivatedRoute, private dialog: MatDialog,
+  constructor(private cartService: CartService,
+    private checkoutService: CheckoutService,
+    private router: Router, private route: ActivatedRoute,
+    private dialog: MatDialog, private userService: UserService
   ) { }
 
-  private keycloakService = inject(KeycloakService);
+  authService = inject(AuthService);
 
   ngOnInit() {
+    const isLoggedIn = this.authService.isLoggedIn() as boolean;
+    if (isLoggedIn) {
+      this.userService.user$.subscribe(response => {
+        this.user = response;
+      })
+    }
     this.cartService.cart$.subscribe(items => {
       this.cartItems = items;
       this.total = this.cartService.getTotal();
@@ -68,28 +79,29 @@ export class CartComponent implements OnInit {
     this.checkoutService.getCurrentOrder().subscribe(order => {
       if (order) {
         const orderId = order?.id;
-        const userId = this.keycloakService.profile?.id as string;
-        const phone = this.keycloakService.profile?.phone as string;
+        const userId = this.user?.id
+        const phone = this.user?.phone;
         const billRequest: BillRequest = {
           phone: phone,
-          clientId: userId, 
+          clientId: userId,
           orderId: orderId,
           amount: this.total
         };
-  
+
         this.checkoutService.createBill(billRequest).subscribe(
           response => {
             if (response) {
               this.checkoutService.createPaymentIntent({
                 amount: this.total * 10,
                 currency: 'USD',
-                receiptEmail: this.keycloakService.profile?.email || ''
+                receiptEmail: this.user?.email
               }).subscribe(
                 PaymentResponse => {
                   this.secretKey = PaymentResponse.client_secret;
                   if (this.secretKey) {
+                    const secretKey = this.secretKey
                     this.dialog.open(CheckoutComponent, {
-                      data: this.secretKey,
+                      data: { secretKey, phone },
                       width: '800px',
                       height: '400px'
                     });
@@ -102,7 +114,4 @@ export class CartComponent implements OnInit {
       }
     });
   }
-
-  
-
 }

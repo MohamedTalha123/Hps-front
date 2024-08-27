@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { CartItem } from '../../entity/cart';
 import { CartService } from '../../services/cart.service';
 import { Router } from '@angular/router';
@@ -12,8 +12,10 @@ import { CheckoutService } from '../../services/checkout.service';
 import { BillRequest } from '../../entity/Bill';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { MatDialog } from '@angular/material/dialog';
-import { KeycloakService } from '../../services/keycloak/keycloak.service';
 import { FilterService } from '../../services/filter.service';
+import { AuthService } from '../../services/keycloak/keycloak.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../entity/user';
 
 @Component({
   selector: 'app-navbar',
@@ -40,51 +42,54 @@ export class NavbarComponent implements OnInit {
   secretKey !: string;
   isSearchDropdownVisible: boolean = false;
   isLoggedIn: boolean = false;
-  username: string | undefined;
-
-
+  username !: string;
+  user !: User;
   private searchSubject = new Subject<string>();
 
   public cartSubject = new BehaviorSubject<any>(null);
 
   selectedOption: string = 'home';
 
-
   constructor(private cartService: CartService, private brandService: BrandService,
     private productService: ProductService,
     private router: Router,
-    private keycloakService: KeycloakService,
     private checkoutService: CheckoutService,
     private dialog: MatDialog,
-    private filterService: FilterService
-
+    private filterService: FilterService,
+    private userService: UserService
   ) { }
 
-   ngOnInit() {
-    this.cartService.cart$.subscribe( items => {
-      this.cartItems = items;
-      this.cartItemsCount = items.length;
-      this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
-      this.isLoggedIn =  this.keycloakService.keycloak.authenticated as boolean;
-      console.log(" dnjanfklsadnloadsnovkldsvklèsd" + this.isLoggedIn);
-      
-      this.username = this.keycloakService.getUsername();
-    });
+  authService = inject(AuthService);
 
-    this.checkoutService.getCurrentOrder().subscribe(response => {
-      if (response) {
-        this.checkoutService.getCurrentOrderLineItems().subscribe(lineItems => {
-          this.cartSubject.next(lineItems);
-          this.cartItems = lineItems;
-          this.cartItemsCount = lineItems.length;
-          this.cartTotal = response?.totalAmount;
+  ngOnInit() {
+    this.isLoggedIn = this.authService.isLoggedIn() as boolean;
+    if (this.isLoggedIn) {
+      this.username = this.authService.userName;
+      this.userService.getUserByMail().subscribe(response => {
+        this.userService.setCurrentUser(response);
+        this.user = response;
+      })
 
-          this.cartService.updateCartItems(this.cartItems);
-          this.loadBrands();
-        })
-      }
-    })
+      this.cartService.cart$.subscribe(items => {
+        this.cartItems = items;
+        this.cartItemsCount = items.length;
+        this.cartTotal = +Number(this.cartService.getTotal()).toFixed(2);
+      });
 
+      this.checkoutService.getCurrentOrder().subscribe(response => {
+        if (response) {
+          this.checkoutService.getCurrentOrderLineItems().subscribe(lineItems => {
+            this.cartSubject.next(lineItems);
+            this.cartItems = lineItems;
+            this.cartItemsCount = lineItems.length;
+            this.cartTotal = response?.totalAmount;
+
+            this.cartService.updateCartItems(this.cartItems);
+            this.loadBrands();
+          })
+        }
+      })
+    }
 
     this.searchSubject.pipe(
       debounceTime(300),
@@ -95,11 +100,14 @@ export class NavbarComponent implements OnInit {
     });
   }
   login() {
-    this.keycloakService.init();
+    this.authService.redirectToLoginPage();
+
   }
 
   logout() {
-    this.keycloakService.logout();
+    this.authService.logout();
+    this.cartService.freeShoppingItems().subscribe();
+    this.userService.resetCurrentUser();
   }
   loadBrands() {
     this.brandService.getAllBrands().subscribe(
@@ -160,7 +168,6 @@ export class NavbarComponent implements OnInit {
   toggleCartDropdown() {
     this.isCartDropdownVisible = !this.isCartDropdownVisible;
     console.log('Cart dropdown toggled');
-
   }
 
   @HostListener('window:scroll', [])
@@ -204,15 +211,12 @@ export class NavbarComponent implements OnInit {
   onSearchInput() {
     this.searchSubject.next(this.searchQuery);
     this.isSearchDropdownVisible = this.searchQuery.length > 0;
-    console.log(this.keycloakService.profile?.id);
-
   }
 
   onSearch() {
     if (this.searchQuery) {
       this.router.navigate(['/products'], { queryParams: { search: this.searchQuery } });
-      this.searchResults = []; // Clear results after search
-
+      this.searchResults = [];
     }
   }
 
@@ -222,54 +226,59 @@ export class NavbarComponent implements OnInit {
     this.searchResults = [];
   }
 
-  async goToCart() {
-    const authenticated = await this.keycloakService.init();
-    if (authenticated) {
-      this.router.navigate(["/cart"]);
+  goToCart() {
+    if (!this.authService.isLoggedIn()) {
+      this.authService.redirectToLoginPage();
+      return;
     }
-
+    this.router.navigate(["/cart"]);
   }
 
-  async checkout() {
-    const authenticated = await this.keycloakService.init();
-    if (authenticated) {
-      this.checkoutService.getCurrentOrder().subscribe(order => {
-        if (order) {
-          const orderId = order?.id;
-          const userId = this.keycloakService.profile?.id as string;
-          const phone = this.keycloakService.profile?.phone as string;
-          const billRequest: BillRequest = {
-            phone: phone,
-            clientId: userId,
-            orderId: orderId,
-            amount: this.cartTotal
-          };
-
-          this.checkoutService.createBill(billRequest).subscribe(
-            response => {
-              if (response) {
-                this.checkoutService.createPaymentIntent({
-                  amount: this.cartTotal * 10,
-                  currency: 'USD',
-                  receiptEmail: this.keycloakService.profile?.email || ''
-                }).subscribe(
-                  PaymentResponse => {
-                    this.secretKey = PaymentResponse.client_secret;
-                    if (this.secretKey) {
-                      this.dialog.open(CheckoutComponent, {
-                        data: this.secretKey,
-                        width: '800px',
-                        height: '400px'
-                      });
-                    }
-                  }
-                );
-              }
-            }
-          );
-        }
-      });
+  checkout() {
+    if (!this.authService.isLoggedIn()) {
+      this.authService.redirectToLoginPage();
+      return;
     }
+    if(this.cartItems.length === 0){
+      return;
+    }
+    this.checkoutService.getCurrentOrder().subscribe(order => {
+      if (order) {
+        const orderId = order?.id;
+        const userId = this.user?.id
+        const phone = this.user?.phone;
+        const billRequest: BillRequest = {
+          phone: phone,
+          clientId: userId,
+          orderId: orderId,
+          amount: this.cartTotal
+        };
+
+        this.checkoutService.createBill(billRequest).subscribe(
+          response => {
+            if (response) {
+              this.checkoutService.createPaymentIntent({
+                amount: this.cartTotal * 10,
+                currency: 'USD',
+                receiptEmail: this.user?.email
+              }).subscribe(
+                PaymentResponse => {
+                  this.secretKey = PaymentResponse.client_secret;
+                  if (this.secretKey) {
+                    const secretKey = this.secretKey;
+                    this.dialog.open(CheckoutComponent, {
+                      data: { secretKey, phone },
+                      width: '800px',
+                      height: '400px'
+                    });
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    });
   }
 
   @HostListener('document:click', ['$event'])
