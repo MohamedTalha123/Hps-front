@@ -10,9 +10,9 @@ import { firstValueFrom } from 'rxjs';
 })
 export class KeycloakService {
   private _keycloak: Keycloak | undefined;
-  private _profile: UserProfile | undefined;
+  private _profile !: UserProfile;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   get keycloak() {
     if (!this._keycloak) {
@@ -29,10 +29,14 @@ export class KeycloakService {
     return this._profile;
   }
 
-  async init() {
+  async init(): Promise<boolean> {
+    if (this.keycloak.authenticated) {
+      return true;
+    }
+
     const authenticated = await this.keycloak.init({
       onLoad: 'login-required',
-    });
+    })
 
     if (authenticated) {
       this._profile = (await this.keycloak.loadUserProfile()) as UserProfile;
@@ -44,15 +48,17 @@ export class KeycloakService {
         if (attributes) {
           this._profile.phone = attributes as string;
         }
-
         if (email) {
-          // Fetch the user ID from your backend using the email
-          const userInfo = await firstValueFrom(this.fetchAdditionalUserInfo(email));
-          this._profile.id = userInfo.id;
-          this._profile.phone = userInfo.phone;
+          this.fetchAdditionalUserInfo(email).subscribe(response => {
+            this._profile.id = response?.id;
+            this._profile.phone = response?.phone;
+          }
+          );
         }
       }
     }
+
+    return authenticated;
   }
 
   fetchAdditionalUserInfo(email: string): Observable<UserProfile> {
@@ -66,10 +72,11 @@ export class KeycloakService {
   logout() {
     return this.keycloak.logout({ redirectUri: 'http://localhost:4200' });
   }
+
   isLoggedIn(): boolean {
     return this.keycloak.authenticated ?? false;
   }
-  
+
   getUsername(): string | undefined {
     return this.keycloak.tokenParsed?.['preferred_username'];
   }

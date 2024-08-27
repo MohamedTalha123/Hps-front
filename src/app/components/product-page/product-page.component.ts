@@ -5,7 +5,7 @@ import { ProductResponse } from '../../entity/product';
 import { CartService } from '../../services/cart.service';
 import { Subscription, filter } from 'rxjs';
 import { CheckoutService } from '../../services/checkout.service';
-import { response } from 'express';
+import { KeycloakService } from 'keycloak-angular';
 
 @Component({
   selector: 'app-product-page',
@@ -25,7 +25,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private checkoutService: CheckoutService
+    private checkoutService: CheckoutService,
+    private keycloakService: KeycloakService
   ) { }
 
   ngOnInit() {
@@ -99,16 +100,24 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   }
 
   addToCart() {
-    this.checkoutService.createOrder(
-      {
-        product_id: this.product?.id,
-        quantity: this.quantity,
-        user_id: 1
-      }
-    ).subscribe(response => {
-       if(response ){
-        this.cartService.addToCart(this.product as ProductResponse, this.quantity);
-       }
-    })
+    const authenticated =  this.keycloakService.isLoggedIn()
+    console.log("auth " + authenticated);
+    
+    if (!authenticated) {
+      this.keycloakService.login();
+      return;
+    }
+      this.checkoutService.createOrder(
+        {
+          product_id: this.product?.id,
+          quantity: this.quantity,
+          user_id: "1"
+        }
+      ).subscribe(response => {
+        if (response) {
+          this.cartService.addToCart(this.product as ProductResponse, this.quantity);
+        }
+      })
+
   }
 }

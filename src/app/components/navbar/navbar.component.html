@@ -96,7 +96,7 @@
                 Total: {{ cartTotal }} DH
               </div>
               <div class="px-4 py-2">
-                <button routerLink="/cart" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW
+                <button (click)="goToCart()" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW
                   CART</button>
                 <button (click)="checkout()"
                   class="w-full px-4 py-2 bg-orange-500 text-white hover:bg-orange-600">CHECKOUT</button>

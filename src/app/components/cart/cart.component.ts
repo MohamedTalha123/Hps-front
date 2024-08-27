@@ -1,5 +1,5 @@
 // src/app/components/cart/cart.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from "../../entity/cart";
 import { CheckoutService } from '../../services/checkout.service';
@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { BillRequest } from '../../entity/Bill';
+import { KeycloakService } from '../../services/keycloak/keycloak.service';
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
@@ -18,9 +19,10 @@ export class CartComponent implements OnInit {
 
   secretKey !: string;
 
-
   constructor(private cartService: CartService, private checkoutService: CheckoutService, private router: Router, private route: ActivatedRoute, private dialog: MatDialog,
   ) { }
+
+  private keycloakService = inject(KeycloakService);
 
   ngOnInit() {
     this.cartService.cart$.subscribe(items => {
@@ -63,29 +65,44 @@ export class CartComponent implements OnInit {
   }
 
   openPaymentPopup() {
-    const billRequest: BillRequest = {
-      phone: '0607677381',
-      clientId: '1',
-      orderId: '1',
-      amount: this.total
-    }
-    this.checkoutService.createBill(billRequest).subscribe(
-      response => {
-        if (response) {
-          this.checkoutService.createPaymentIntent({ amount: this.total * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
-            PaymentResponse => {
-              this.secretKey = PaymentResponse.client_secret;
-              if (this.secretKey) {
-                this.dialog.open(CheckoutComponent, {
-                  data: this.secretKey,
-                  width: '800px',
-                  height: '400px'
-                });
-              }
-            });
-        }
-      });
-
+    this.checkoutService.getCurrentOrder().subscribe(order => {
+      if (order) {
+        const orderId = order?.id;
+        const userId = this.keycloakService.profile?.id as string;
+        const phone = this.keycloakService.profile?.phone as string;
+        const billRequest: BillRequest = {
+          phone: phone,
+          clientId: userId, 
+          orderId: orderId,
+          amount: this.total
+        };
+  
+        this.checkoutService.createBill(billRequest).subscribe(
+          response => {
+            if (response) {
+              this.checkoutService.createPaymentIntent({
+                amount: this.total * 10,
+                currency: 'USD',
+                receiptEmail: this.keycloakService.profile?.email || ''
+              }).subscribe(
+                PaymentResponse => {
+                  this.secretKey = PaymentResponse.client_secret;
+                  if (this.secretKey) {
+                    this.dialog.open(CheckoutComponent, {
+                      data: this.secretKey,
+                      width: '800px',
+                      height: '400px'
+                    });
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    });
   }
+
+  
 
 }
