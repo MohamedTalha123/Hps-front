@@ -40,6 +40,8 @@ export class ProductSliderMComponent implements OnInit, AfterViewInit {
       },
       error => console.error('Error fetching products:', error)
     );
+    window.scrollTo(0, 0);
+
   }
 
   ngAfterViewInit(): void {

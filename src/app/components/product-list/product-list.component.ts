@@ -58,6 +58,8 @@ export class ProductListComponent implements OnInit {
     });
   
       this.loadBrands();
+      window.scrollTo(0, 0);
+
 
   }
 

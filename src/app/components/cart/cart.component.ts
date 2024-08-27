@@ -29,6 +29,8 @@ export class CartComponent implements OnInit {
       console.log('Cart items:', this.cartItems);
 
     });
+    window.scrollTo(0, 0);
+
   }
 
   updateQuantity(item: CartItem, change: number) {

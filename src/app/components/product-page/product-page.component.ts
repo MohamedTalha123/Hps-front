@@ -41,6 +41,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
         this.loadProductFromRoute();
       })
     );
+    window.scrollTo(0, 0);
+
   }
 
   ngOnDestroy() {
@@ -50,6 +52,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   private loadProductFromRoute() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     console.log('Loading product with id:', id);
+    window.scrollTo(0, 0);
+
     if (id) {
       this.loadProduct(id);
     } else {

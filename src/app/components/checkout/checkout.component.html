@@ -1,5 +1,4 @@
-<div id="creditCard" class="form-area">
-
+<div id="creditCard" class="form-area pb-40"> <!-- Increased padding-bottom -->
   <h3 class="text-2xl font-bold text-center">Credit or Debit Card</h3>
 
   <div id="card-element">
@@ -9,15 +8,19 @@
   <!-- Used to display form errors -->
   <div id="card-errors" class="displayError.textContent!=='': 'alert alert-danger mt-1'"></div>
 </div>
-<button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2" (click)="payBill()">Confirm
-  Payment</button>
+
+<button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2" (click)="payBill()">
+  Confirm Payment
+</button>
 
 <div *ngIf="otpSent">
   <div class="otp-config">
     <div class="text-center">
-      <img src="../../../assets/images/msg.png" class="rounded-circle avatar-lg img-thumbnail mb-3" alt="profile-image">
-      <h2 class="text">Verfication code</h2>
-      <p class="mb-3">Please enter the 5-digits code you recieved.</p>
+      <p class="flex justify-center mt-8">
+        <img src="../../../assets/images/msg.png" class="rounded-circle avatar-lg img-thumbnail mb-3 position-c" alt="profile-image">
+      </p>
+      <h2 class="text">Verification Code</h2>
+      <p class="mb-3">Please enter the 5-digit code you received.</p>
       <form #form="ngForm">
         <ng-otp-input (onInputChange)="onOtpChange($event)" [config]="{length:5}"></ng-otp-input>
         <div class="text-center">
@@ -27,6 +30,8 @@
     </div>
   </div>
 </div>
+
+
 <!-- <app-otp-verification *ngIf=""></app-otp-verification> -->
 
 <!-- Modal -->
