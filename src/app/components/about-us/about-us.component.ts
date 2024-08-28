@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component,OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-about-us',
   templateUrl: './about-us.component.html',
   styleUrls: ['./about-us.component.scss']
 })
-export class AboutUsComponent {
+export class AboutUsComponent implements OnInit {
   features = [
     { title: 'Quality', description: 'We offer only the finest watches.' },
     { title: 'Experience', description: 'Over a decade of expertise in watches.' },
@@ -66,5 +66,10 @@ export class AboutUsComponent {
       },
     
   ];
+  constructor() {}
+
+  ngOnInit(): void {
+    window.scrollTo(0, 0);
+  }
 }
 

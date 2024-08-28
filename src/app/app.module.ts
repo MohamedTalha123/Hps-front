@@ -42,6 +42,7 @@ import { initializeKeycloak } from './init/keycloak-init.factory';
 //import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 import { AuthGuard } from './auth/auth.guard';
 import { KeycloakService } from './services/keycloak/keycloak.service';
+import { UserPageComponent } from './components/user-page/user-page.component';
 
 
 export function kcFactory(kcService: KeycloakService) {
@@ -67,6 +68,7 @@ export function kcFactory(kcService: KeycloakService) {
     CartComponent,
     CheckoutComponent,
     OtpVerificationComponent,
+    UserPageComponent,
 
   ],
   imports: [

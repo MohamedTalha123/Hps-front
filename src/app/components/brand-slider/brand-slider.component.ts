@@ -40,6 +40,13 @@ export class BrandSliderComponent implements OnInit, AfterViewInit {
     private brandService: BrandService,
     private router: Router
   ) { }
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.updateItemsToShow();
+    this.calculateItemWidth();
+    this.updateDisplayedBrands();
+    this.updateSliderPosition(false);
+  }
 
   ngOnInit(): void {
     this.updateItemsToShow();
@@ -74,8 +81,13 @@ export class BrandSliderComponent implements OnInit, AfterViewInit {
   }
 
   updateItemsToShow() {
-    if (typeof window !== 'undefined') {
-      this.itemsToShow = window.innerWidth < 768 ? 2 : 4;
+    const width = window.innerWidth;
+    if (width < 640) {
+      this.itemsToShow = 2;
+    } else if (width < 768) {
+      this.itemsToShow = 3;
+    } else {
+      this.itemsToShow = 4;
     }
   }
   

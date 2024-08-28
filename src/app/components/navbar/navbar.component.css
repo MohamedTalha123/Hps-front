@@ -96,3 +96,27 @@ body {
     visibility: visible;
     transform: translateY(0);
   }
+  
+.brands-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    min-width: 160px;
+  }
+  
+  .brands-dropdown a {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: #4a5568;
+    text-decoration: none;
+  }
+  
+  .brands-dropdown a:hover {
+    background-color: #f7fafc;
+  }
+  

@@ -1,19 +1,17 @@
-<div class="brand-slider-wrapper">
-  <div class="brand-slider-container">
+<div class="brand-slider-wrapper max-w-[90%] md:max-w-[80%] mx-auto my-10">
+  <div class="relative w-full overflow-hidden">
     <button class="nav-button left" (click)="scrollLeft()">&lt;</button>
-    <div class="brand-slider-viewport">
-      <div class="brand-slider"
-      #slider
-             (mousedown)="onMouseDown($event)"
-             (mouseleave)="onMouseLeave()">>
-         <!-- #slider
+    <div class="w-full overflow-hidden">
+      <div #slider
+           class="flex transition-transform duration-300 ease-in-out cursor-grab select-none"
            (mousedown)="onMouseDown($event)"
-           (mousemove)="onMouseMove($event)"
-           (mouseup)="onMouseUp()"
-           (mouseleave)="onMouseLeave()"> -->
-        <div class="brand-item" *ngFor="let brand of displayedBrands">
+           (mouseleave)="onMouseLeave()">
+        <div *ngFor="let brand of displayedBrands" 
+             class="flex-none w-1/2 sm:w-1/3 md:w-1/4 px-1 box-border text-center">
           <div class="brand-logo-container">
-            <img [src]="brand.imageUrl" [alt]="brand.name" class="brand-logo" (click)="navigateToProductList(brand)">
+            <img [src]="brand.imageUrl" [alt]="brand.name" 
+                 class="brand-logo"
+                 (click)="navigateToProductList(brand)">
           </div>
           <span class="brand-name">{{ brand.name }}</span>
         </div>

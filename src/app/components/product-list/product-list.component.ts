@@ -87,6 +87,8 @@ export class ProductListComponent implements OnInit {
         this.applyFilter('search', params['search']);
       }
     });
+    window.scrollTo(0, 0);
+
   }
   
 
@@ -151,6 +153,8 @@ export class ProductListComponent implements OnInit {
       },
       error => console.error('Error loading products:', error)
     );
+    window.scrollTo(0, 0);
+
   }
 
   applyFiltersFromUrl(): void {
@@ -166,6 +170,8 @@ export class ProductListComponent implements OnInit {
         this.applyFilter('search', params['search']);
       }
     });
+    window.scrollTo(0, 0);
+
   }
 
   applyFilter(type: string, value: any) {
@@ -194,7 +200,9 @@ export class ProductListComponent implements OnInit {
             return true;
         }
       });
+
     });
+    window.scrollTo(0, 0);
     this.updatePagedProducts();
     this.applySorting();
   }

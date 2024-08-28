@@ -5,9 +5,8 @@ module.exports = {
   ],
   theme: {
     extend: {
-      borderImage: {
-        'gradient': 'linear-gradient(to right, #add8e6, #4b0082) 1',
-      },
+      backgroundImage: {
+        'gradient-border': 'linear-gradient(to right, #add8e6, #4b0082)',      },
     },
   },
   plugins: [

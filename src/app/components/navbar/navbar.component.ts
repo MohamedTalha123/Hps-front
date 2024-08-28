@@ -41,6 +41,8 @@ export class NavbarComponent implements OnInit {
   isSearchDropdownVisible: boolean = false;
   isLoggedIn: boolean = false;
   username: string | undefined;
+  isMobileBrandsDropdownVisible = false;
+
 
 
   private searchSubject = new Subject<string>();
@@ -192,7 +194,7 @@ export class NavbarComponent implements OnInit {
   hideBrandsDropdown() {
     this.dropdownTimeout = setTimeout(() => {
       this.isBrandsDropdownVisible = false;
-    }, 200); 
+    }, 300); // Increased delay to 300ms
   }
 
   selectOption(option: string) {
@@ -201,15 +203,30 @@ export class NavbarComponent implements OnInit {
   onSearchInput() {
     this.searchSubject.next(this.searchQuery);
     this.isSearchDropdownVisible = this.searchQuery.length > 0;
-
-
   }
 
+  navigateToAndCloseMenu(route: string, filter?: { type: string, value: any }) {
+    this.navigateTo(route, filter);
+    this.isMenuCollapsed = true;
+  }
+  
+  selectBrandAndCloseMenu(brand: string) {
+    this.selectBrand(brand);
+    this.isMenuCollapsed = true;
+  }
+  navigateToProductAndCloseMenu(productId: number) {
+    this.router.navigate(['/product', productId]);
+    this.isMenuCollapsed = true;
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.isSearchDropdownVisible = false;
+  }
   onSearch() {
     if (this.searchQuery) {
       this.router.navigate(['/products'], { queryParams: { search: this.searchQuery } });
-      this.searchResults = []; // Clear results after search
-
+      this.searchResults = [];
+      this.isSearchDropdownVisible = false;
+      this.isMenuCollapsed = true; // Close mobile menu after search
     }
   }
 
@@ -266,5 +283,8 @@ export class NavbarComponent implements OnInit {
       this.searchQuery = '';
       this.searchResults = [];
     }
+  }
+  toggleMobileBrandsDropdown() {
+    this.isMobileBrandsDropdownVisible = !this.isMobileBrandsDropdownVisible;
   }
 }

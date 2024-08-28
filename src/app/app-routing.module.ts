@@ -7,6 +7,7 @@ import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { AuthGuard } from './auth/auth.guard';
+import { UserPageComponent } from './components/user-page/user-page.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -14,7 +15,8 @@ const routes: Routes = [
   { path: 'product/:id', component: ProductPageComponent },
   { path: 'cart', component: CartComponent },
   { path: 'products', component: ProductListComponent },
-  { path: 'checkout', component: CheckoutComponent,canActivate: [AuthGuard] },   
+  { path: 'checkout', component: CheckoutComponent,canActivate: [AuthGuard] },
+  { path: 'user-page', component: UserPageComponent},   
   { path: '**', redirectTo: '' },
 ];
 
