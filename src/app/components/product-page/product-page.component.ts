@@ -22,6 +22,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   isLoading = true;
   error?: string;
   user !: User;
+  noQuantityError :boolean = false;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -93,6 +94,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       this.quantity++;
       this.maxQuantityError = false;
     } else {
+      this.noQuantityError = false;
+
       this.maxQuantityError = true;
     }
   }
@@ -110,6 +113,11 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.quantity > this.product!.availableQuantity) {
+      this.maxQuantityError = false;
+      this.noQuantityError = true;
+      return;
+    }
     console.log('userr iddd ' + this.user?.id);
 
     this.checkoutService.createOrder(

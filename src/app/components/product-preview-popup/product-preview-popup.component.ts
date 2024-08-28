@@ -16,6 +16,7 @@ export class ProductPreviewPopupComponent implements OnInit {
   quantity: number = 1;
   maxQuantityError: boolean = false;
   user !: User;
+  noQuantityError : boolean =false;
   constructor(
     public dialogRef: MatDialogRef<ProductPreviewPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public product: ProductResponse,
@@ -39,6 +40,7 @@ export class ProductPreviewPopupComponent implements OnInit {
       this.quantity++;
       this.maxQuantityError = false;
     } else {
+      this.noQuantityError = false;
       this.maxQuantityError = true;
     }
   }
@@ -46,6 +48,7 @@ export class ProductPreviewPopupComponent implements OnInit {
   decreaseQuantity() {
     if (this.quantity > 1) {
       this.quantity--;
+
       this.maxQuantityError = false;
     }
   }
@@ -57,6 +60,11 @@ export class ProductPreviewPopupComponent implements OnInit {
     }
 
     if (this.product) {
+      if (this.quantity > this.product.availableQuantity) {
+        this.maxQuantityError = false;
+        this.noQuantityError = true;
+        return;
+      }
       this.checkoutService.createOrder(
         {
           product_id: this.product?.id,
