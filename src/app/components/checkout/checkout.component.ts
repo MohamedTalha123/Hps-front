@@ -1,7 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CheckoutService } from "../../services/checkout.service";
 import { environment } from '../../../../environments/environment';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { OtpVerificationComponent } from '../otp-verification/otp-verification.component';
 
 @Component({
   selector: 'app-checkout',
@@ -20,14 +21,13 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private checkoutService: CheckoutService,
     public dialogRef: MatDialogRef<CheckoutComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {secretKey : string, phone: string},
+    @Inject(MAT_DIALOG_DATA) public data: {secretKey : string, phone: string},  private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
     this.otpSent = false;
     console.log('phone ' + this.data.phone);
     console.log('secret  ' + this.data.secretKey);
-    
     
     if (this.data.secretKey) {
       this.setupStripePaymentForm();
@@ -58,23 +58,16 @@ export class CheckoutComponent implements OnInit {
     this.checkoutService.payBill({ phone: phoneNumber }).subscribe(response => {
       console.log('paybill response: ' + response?.message);
       this.otpSent = true;
+
+      this.dialog.open(OtpVerificationComponent, {
+        data: { stripe : this.stripe, elements:  this.elements },
+        width: '800px',
+        height: '400px'
+      });
     });
   }
 
   onOtpChange(data: string) {
     this.otpMsg = data;
-  }
-
-  onSubmitOtp() {
-    this.checkoutService.confirmBillPayment(this.otpMsg).subscribe(
-      response => {
-        this.stripe.confirmPayment({
-          elements: this.elements,
-          confirmParams: {
-            return_url: 'http://localhost:4200',
-          }
-        });
-      }
-    );
   }
 }
