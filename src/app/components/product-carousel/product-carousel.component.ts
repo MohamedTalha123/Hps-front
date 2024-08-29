@@ -25,14 +25,14 @@ export class ProductCarouselComponent implements AfterViewInit {
       category: 'OMEGA'
     },
     {
-      imageUrl: '../../../assets/images/baner/tissot.jpg',
-      alt: 'tissot',
+      imageUrl: '../../../assets/images/baner/festina.jpg',
+      alt: 'festina',
       title: 'Summer Sale',
       description: 'Up to 50% off on selected items',
-      category: 'CASIO'
+      category: 'FESTINA'
     },
     {
-      imageUrl: '../../../assets/images/baner/casio4.jpg',
+      imageUrl: '../../../assets/images/baner/casio.jpg',
       alt: 'casio',
       title: 'Summer Sale',
       description: 'Up to 50% off on selected items',

@@ -8,12 +8,24 @@
         <span class="text-xl font-semibold">E-Commerce</span>
       </a>
 
-      <!-- Mobile menu button -->
-      <button (click)="toggleNavbar()" class="lg:hidden">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-        </svg>
-      </button>
+      <!-- Mobile menu button and cart -->
+      <div class="flex items-center lg:hidden">
+        <!-- Mobile cart -->
+        <a routerLink="/cart" class="mr-4 text-gray-600 hover:text-gray-900 flex items-center">
+          <i class="fas fa-shopping-basket"></i>
+          <span class="ml-1">{{ cartTotal }} DH</span>
+          <span class=" bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+            {{ cartItemsCount }}
+          </span>
+        </a>
+
+        <!-- Mobile menu button -->
+        <button (click)="toggleNavbar()">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+        </button>
+      </div>
 
       <!-- Desktop menu -->
       <div class="hidden lg:flex lg:items-center lg:w-auto">
@@ -123,71 +135,62 @@
               </div>
     </div>
 
-<!-- Mobile menu (hidden by default) -->
-<div class="lg:hidden" [ngClass]="{'hidden': isMenuCollapsed}">
-  <ul class="mt-2 space-y-2">
-    <li><a routerLink="/" class="block py-2" (click)="navigateToAndCloseMenu('/')">HOME</a></li>
-    <li><a routerLink="/products" class="block py-2" (click)="navigateToAndCloseMenu('/products')">PRODUCTS</a></li>
-    <li><a routerLink="/products" [queryParams]="{gender: 'MALE'}" class="block py-2" 
-        (click)="navigateToAndCloseMenu('/products', {type: 'gender', value: 'MALE'})">FOR MEN</a></li>
-    <li><a routerLink="/products" [queryParams]="{gender: 'FEMALE'}" class="block py-2"
-        (click)="navigateToAndCloseMenu('/products', {type: 'gender', value: 'FEMALE'})">FOR WOMEN</a></li>
-    <li>
-      <a (click)="toggleMobileBrandsDropdown()" class="block py-2">BRANDS</a>
-      <div [ngClass]="{'hidden': !isMobileBrandsDropdownVisible}" class="pl-4">
-        <a *ngFor="let brand of brands" class="block py-2" (click)="selectBrandAndCloseMenu(brand.name)">{{ brand.name }}</a>
-      </div>
-    </li>
-    <li><a routerLink="/about-us" class="block py-2" (click)="navigateToAndCloseMenu('/about-us')">ABOUT-US</a></li>
-    <li><a routerLink="/user-page" class="block py-2" (click)="navigateToAndCloseMenu('/user-page')">PROFILE</a></li>
-  </ul>
+    <!-- Mobile menu (hidden by default) -->
+    <div class="lg:hidden" [ngClass]="{'hidden': isMenuCollapsed}">
+      <ul class="mt-2 space-y-2">
+        <li><a routerLink="/" class="block py-2" (click)="navigateToAndCloseMenu('/')">HOME</a></li>
+        <li><a routerLink="/products" class="block py-2" (click)="navigateToAndCloseMenu('/products')">PRODUCTS</a></li>
+        <li><a routerLink="/products" [queryParams]="{gender: 'MALE'}" class="block py-2" 
+            (click)="navigateToAndCloseMenu('/products', {type: 'gender', value: 'MALE'})">FOR MEN</a></li>
+        <li><a routerLink="/products" [queryParams]="{gender: 'FEMALE'}" class="block py-2"
+            (click)="navigateToAndCloseMenu('/products', {type: 'gender', value: 'FEMALE'})">FOR WOMEN</a></li>
+        <li>
+          <a (click)="toggleMobileBrandsDropdown()" class="block py-2">BRANDS</a>
+          <div [ngClass]="{'hidden': !isMobileBrandsDropdownVisible}" class="pl-4">
+            <a *ngFor="let brand of brands" class="block py-2" (click)="selectBrandAndCloseMenu(brand.name)">{{ brand.name }}</a>
+          </div>
+        </li>
+        <li><a routerLink="/about-us" class="block py-2" (click)="navigateToAndCloseMenu('/about-us')">ABOUT-US</a></li>
+        <li><a routerLink="/user-page" class="block py-2" (click)="navigateToAndCloseMenu('/user-page')">PROFILE</a></li>
+      </ul>
 
- <!-- Mobile search -->
-<div class="mt-4 relative">
-  <form (ngSubmit)="onSearch()" class="flex">
-    <input type="search" [(ngModel)]="searchQuery" name="search" placeholder="Search" (input)="onSearchInput()"
-           class="flex-grow px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
-    <button type="submit"
-            class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
-      Search
-    </button>
-  </form>
-  <!-- Dropdown for search results -->
-  <div *ngIf="isSearchDropdownVisible && searchResults.length > 0"
-    class="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-md mt-1 z-50 max-h-60 overflow-y-auto">
-    <div *ngFor="let product of searchResults"
-        class="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
-        (click)="navigateToProductAndCloseMenu(product.id)">
-        <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover mr-2">
-        <div class="flex-grow">
-            <div class="font-semibold">{{ product.name }}</div>
-            <div class="text-sm text-gray-600">{{ product.price }}</div>
+      <!-- Mobile search -->
+      <div class="mt-4 relative">
+        <form (ngSubmit)="onMobileSearch()" class="flex">
+          <input type="search" [(ngModel)]="MsearchQuery" name="search" placeholder="Search" (input)="monSearchInput()"
+                 class="flex-grow px-3 py-1 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500">
+          <button type="submit"
+                  class="px-4 py-1 bg-green-500 text-white rounded-r-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+            Search
+          </button>
+        </form>
+
+        <!-- Dropdown for search results -->
+        <div *ngIf="isSearchDropdownVisible && searchResults.length > 0"
+          class="absolute top-full left-0 w-full bg-white shadow-lg rounded-b-md mt-1 z-50 max-h-60 overflow-y-auto">
+          <div *ngFor="let product of searchResults"
+              class="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+              (click)="navigateToProductAndCloseMenu(product.id)">
+              <img [src]="product.imageUrl" [alt]="product.name" class="w-12 h-12 object-cover mr-2">
+              <div class="flex-grow">
+                  <div class="font-semibold">{{ product.name }}</div>
+                  <div class="text-sm text-gray-600">{{ product.price }}</div>
+              </div>
+          </div>
         </div>
-    </div>
-  </div>
-</div>
-      
-      <!-- Mobile cart -->
-      <div class="mt-4">
-        <a routerLink="/cart" class="flex items-center justify-between py-2">
-          <span>Cart</span>
-          <span class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-            {{ cartItemsCount }}
-          </span>
-        </a>
       </div>
-      
+
       <!-- Mobile login/signup -->
       <div class="mt-4">
         <ng-container *ngIf="!isLoggedIn; else mobileLoggedInTemplate">
           <a href="#" class="block py-2" (click)="login()">SIGN UP / LOG IN</a>
         </ng-container>
-      
+
         <ng-template #mobileLoggedInTemplate>
           <span class="block py-2">Welcome, {{ username }}</span>
           <a href="#" class="block py-2" (click)="logout()">LOGOUT</a>
         </ng-template>
       </div>
-          </div>
+    </div>
   </div>
 </nav>

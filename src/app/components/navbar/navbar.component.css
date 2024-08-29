@@ -119,4 +119,13 @@ body {
   .brands-dropdown a:hover {
     background-color: #f7fafc;
   }
-  
+  /* @media (max-width: 1023px) {
+    .search-dropdown-mobile {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 50vh;
+    }
+  } */

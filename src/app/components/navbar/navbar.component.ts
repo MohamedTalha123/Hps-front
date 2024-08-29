@@ -36,6 +36,7 @@ export class NavbarComponent implements OnInit {
   isCartDropdownVisible: boolean = false;
   cartDropdownTimeout: any;
   searchQuery: string = '';
+  MsearchQuery: string = '';
   searchResults: ProductResponse[] = [];
   secretKey !: string;
   isSearchDropdownVisible: boolean = false;
@@ -62,6 +63,7 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loadBrands();
     this.cartService.cart$.subscribe(items => {
       this.cartItems = items;
       this.cartItemsCount = items.length;
@@ -79,7 +81,7 @@ export class NavbarComponent implements OnInit {
           this.cartTotal = response?.totalAmount;
 
           this.cartService.updateCartItems(this.cartItems);
-          this.loadBrands();
+          // this.loadBrands();
         })
       }
     })
@@ -204,6 +206,10 @@ export class NavbarComponent implements OnInit {
     this.searchSubject.next(this.searchQuery);
     this.isSearchDropdownVisible = this.searchQuery.length > 0;
   }
+  monSearchInput() {
+    this.searchSubject.next(this.MsearchQuery);
+    this.isSearchDropdownVisible = this.MsearchQuery.length > 0;
+  }
 
   navigateToAndCloseMenu(route: string, filter?: { type: string, value: any }) {
     this.navigateTo(route, filter);
@@ -218,15 +224,26 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/product', productId]);
     this.isMenuCollapsed = true;
     this.searchQuery = '';
+    this.MsearchQuery = '';
+
     this.searchResults = [];
     this.isSearchDropdownVisible = false;
   }
   onSearch() {
-    if (this.searchQuery) {
+    if (this.searchQuery ) {
       this.router.navigate(['/products'], { queryParams: { search: this.searchQuery } });
       this.searchResults = [];
       this.isSearchDropdownVisible = false;
       this.isMenuCollapsed = true; // Close mobile menu after search
+      this.searchQuery = ''; // Clear the search query
+      this.MsearchQuery = ''; // Clear the search query
+    }else if (this.MsearchQuery){
+      this.router.navigate(['/products'], { queryParams: { search: this.MsearchQuery } });
+      this.searchResults = [];
+      this.isSearchDropdownVisible = false;
+      this.isMenuCollapsed = true; // Close mobile menu after search
+      this.searchQuery = ''; // Clear the search query
+      this.MsearchQuery = ''; // Clear the search query
     }
   }
 
@@ -286,5 +303,9 @@ export class NavbarComponent implements OnInit {
   }
   toggleMobileBrandsDropdown() {
     this.isMobileBrandsDropdownVisible = !this.isMobileBrandsDropdownVisible;
+  }
+  onMobileSearch() {
+    this.onSearch();
+    this.isMenuCollapsed = true;
   }
 }
