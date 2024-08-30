@@ -1,12 +1,63 @@
-<div id="creditCard" class="form-area pb-40"> <!-- Increased padding-bottom -->
-  <h3 class="text-2xl font-bold text-center">Credit or Debit Card</h3>
+<div class="relative bg-white rounded-lg p-6 w-full max-w-md mx-auto">
+  <div id="creditCard" class="form-area pb-28" *ngIf="!showProfile">
+    <h3 class="text-2xl font-bold text-center mb-3">Credit or Debit Card</h3>
 
-  <div id="card-element">
-    <!-- a Stripe element will be inserted here -->
+    <div id="card-element" #cardElement class="mb-3">
+      <!-- Stripe element will be inserted here -->
+    </div>
+
+    <!-- Used to display form errors -->
+    <div id="card-errors" class="text-red-500 text-sm mt-2" role="alert"></div>
   </div>
 
+  <div *ngIf="showProfile" class="otp-config">
+
+    <div class="text-center">
+      <p class="flex justify-center mt-1">
+        <img src="../../../assets/images/msg.png" class="rounded-full w-24 h-24 " alt="profile-image">
+      </p>
+      <h2 class="text">Verification Code</h2>
+      <p class="mb-3">Please enter the 5-digit code you received.</p>
+      <form #form="ngForm">
+        <ng-otp-input (onInputChange)="onOtpChange($event)" [config]="{length:5}"></ng-otp-input>
+        <div class="text-center">
+          <button type="button" (click)="onSubmitOtp()" class="btn btn-sm pay-button my-4">Submit Otp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <button 
+    class="preview-button absolute bottom-16 left-4 right-4 bg-[#1d3a5c] text-white py-2 rounded-md"
+    (click)="payBill()"
+    *ngIf="!showProfile"
+  >
+    Confirm Payment
+  </button>
+  <!-- <div 
+    *ngIf="errorMessage" 
+    class="absolute bottom-20 left-4 right-4 text-red-500 text-center"
+    [@fadeInOut]
+  >
+    {{ errorMessage }}
+  </div> -->
+</div>
+
+
+
+<!--old code from here-->
+
+
+<!-- <div id="creditCard" class="form-area pb-40"> -->
+   <!-- Increased padding-bottom -->
+  <!-- <h3 class="text-2xl font-bold text-center">Credit or Debit Card</h3>
+
+  <div id="card-element"> -->
+    <!-- a Stripe element will be inserted here -->
+  <!-- </div> -->
+
   <!-- Used to display form errors -->
-  <div id="card-errors" class="displayError.textContent!=='': 'alert alert-danger mt-1'"></div>
+  <!-- <div id="card-errors" class="displayError.textContent!=='': 'alert alert-danger mt-1'"></div>
 </div>
 
 <button class="preview-button absolute bottom-0 left-0 right-0 bg-[#1d3a5c] text-white py-2" (click)="payBill()">
@@ -29,8 +80,10 @@
       </form>
     </div>
   </div>
-</div>
+</div> -->
 
+
+<!--to here-->
 
 <!-- <app-otp-verification *ngIf=""></app-otp-verification> -->
 
