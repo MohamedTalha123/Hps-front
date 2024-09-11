@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Product, ProductRequest, ProductResponse } from '../entity/product';
-import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +10,8 @@ import { OAuthService } from 'angular-oauth2-oidc';
 export class ProductService {
   private apiUrl = 'http://localhost:8091/api/v1/products';
 
-  constructor(private http: HttpClient, private authService: OAuthService) {}
+  constructor(private http: HttpClient) {}
  
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getAccessToken();
-    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
-  }
   private handleError(error: any) {
     console.error('API error:', error);
     return throwError(error);}

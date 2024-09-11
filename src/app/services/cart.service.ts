@@ -68,7 +68,7 @@ export class CartService {
     return this.http.put<Order>(this.apiUrl, orderRequest);
   }
 
-  deleteOrder(): Observable<void> {
+  freeShoppingItems(): Observable<void> {
     return this.http.delete<void>(this.apiUrl);
   }
 

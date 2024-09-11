@@ -34,21 +34,20 @@ import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CartService } from './services/cart.service';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
-import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { OtpVerificationComponent } from './components/otp-verification/otp-verification.component';
 import { HttpTokenInterceptor } from './auth/interceptor.interceptor';
 import { initializeKeycloak } from './init/keycloak-init.factory';
-//import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
-import { AuthGuard } from './auth/auth.guard';
-import { KeycloakService } from './services/keycloak/keycloak.service';
-import { UserPageComponent } from './components/user-page/user-page.component';
+import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
+// import { AuthGuard } from './auth/auth.guard';
+// import { KeycloakService } from './services/keycloak/keycloak.service';
+// import { OAuthModule } from 'angular-oauth2-oidc';
+// import { UserPageComponent } from './components/user-page/user-page.component';
 import { ContactComponent } from './components/contact/contact.component';
 
-
-export function kcFactory(kcService: KeycloakService) {
-  return () => kcService.init();
-}
+// export function kcFactory(kcService: KeycloakService) {
+//   return () => kcService.init();
+// }
 
 @NgModule({
   declarations: [
@@ -66,11 +65,12 @@ export function kcFactory(kcService: KeycloakService) {
     ProductSliderFComponent,
     FooterComponent,
     AboutUsComponent,
-    CartComponent,
     CheckoutComponent,
     OtpVerificationComponent,
-    UserPageComponent,
+    // UserPageComponent,
     ContactComponent,
+    CartComponent,
+
 
   ],
   imports: [
@@ -89,15 +89,8 @@ export function kcFactory(kcService: KeycloakService) {
     MatButtonModule,
     RouterModule,
     ReactiveFormsModule,
-   // KeycloakAngularModule, //added
     HttpClientModule,
-     OAuthModule.forRoot({
-      resourceServer: {
-        allowedUrls: ['http://localhost:8091'],
-        sendAccessToken: true,
-      },
-    }),
- 
+    KeycloakAngularModule
   ],
   providers: [
     provideClientHydration(),
@@ -115,7 +108,7 @@ export function kcFactory(kcService: KeycloakService) {
       useFactory: initializeKeycloak,
       multi: true
     },
-    AuthGuard
+    KeycloakService
   ],
   
   bootstrap: [AppComponent]

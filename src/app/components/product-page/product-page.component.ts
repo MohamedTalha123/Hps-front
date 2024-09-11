@@ -1,11 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { ProductResponse } from '../../entity/product';
 import { CartService } from '../../services/cart.service';
 import { Subscription, filter } from 'rxjs';
 import { CheckoutService } from '../../services/checkout.service';
-import { response } from 'express';
+import { KeycloakService } from 'keycloak-angular';
+import { AuthService } from '../../services/keycloak/keycloak.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../entity/user';
 
 @Component({
   selector: 'app-product-page',
@@ -18,6 +21,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   maxQuantityError: boolean = false;
   isLoading = true;
   error?: string;
+  user !: User;
+  noQuantityError :boolean = false;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -25,24 +30,27 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private checkoutService: CheckoutService
+    private checkoutService: CheckoutService,
+    private userService: UserService
   ) { }
+  authService = inject(AuthService);
 
   ngOnInit() {
-    console.log('ProductPageComponent initialized');
+    window.scrollTo(0, 0);
+    const isLoggedIn = this.authService.isLoggedIn() as boolean;
+    if (isLoggedIn) {
+      this.userService.user$.subscribe(response => {
+        this.user = response;
+      })
+    }
     this.loadProductFromRoute();
-
-    // Subscribe to router events to detect when navigation ends
     this.subscriptions.push(
       this.router.events.pipe(
         filter(event => event instanceof NavigationEnd)
       ).subscribe(() => {
-        console.log('Navigation ended, reloading product');
         this.loadProductFromRoute();
       })
     );
-    window.scrollTo(0, 0);
-
   }
 
   ngOnDestroy() {
@@ -50,10 +58,9 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   }
 
   private loadProductFromRoute() {
+    window.scrollTo(0, 0);
     const id = Number(this.route.snapshot.paramMap.get('id'));
     console.log('Loading product with id:', id);
-    window.scrollTo(0, 0);
-
     if (id) {
       this.loadProduct(id);
     } else {
@@ -84,13 +91,13 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     );
   }
 
-
-
   increaseQuantity() {
     if (this.product && this.quantity < this.product.availableQuantity) {
       this.quantity++;
       this.maxQuantityError = false;
     } else {
+      this.noQuantityError = false;
+
       this.maxQuantityError = true;
     }
   }
@@ -103,16 +110,29 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   }
 
   addToCart() {
+    if (!this.authService.isLoggedIn()) {
+      this.authService.redirectToLoginPage();
+      return;
+    }
+
+    if (this.quantity > this.product!.availableQuantity) {
+      this.maxQuantityError = false;
+      this.noQuantityError = true;
+      return;
+    }
+    console.log('userr iddd ' + this.user?.id);
+
     this.checkoutService.createOrder(
       {
         product_id: this.product?.id,
         quantity: this.quantity,
-        user_id: 1
+        user_id: this.user?.id
       }
     ).subscribe(response => {
-       if(response ){
+      if (response) {
         this.cartService.addToCart(this.product as ProductResponse, this.quantity);
-       }
+      }
     })
+
   }
 }

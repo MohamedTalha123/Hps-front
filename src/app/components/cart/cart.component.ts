@@ -1,5 +1,5 @@
 // src/app/components/cart/cart.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from "../../entity/cart";
 import { CheckoutService } from '../../services/checkout.service';
@@ -7,6 +7,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { CheckoutComponent } from '../checkout/checkout.component';
 import { BillRequest } from '../../entity/Bill';
+import { AuthService } from '../../services/keycloak/keycloak.service';
+import { UserService } from '../../services/user.service';
+import { User } from '../../entity/user';
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
@@ -15,14 +18,24 @@ import { BillRequest } from '../../entity/Bill';
 export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
   total: number = 0;
-
   secretKey !: string;
+  user  !: User;
 
-
-  constructor(private cartService: CartService, private checkoutService: CheckoutService, private router: Router, private route: ActivatedRoute, private dialog: MatDialog,
+  constructor(private cartService: CartService,
+    private checkoutService: CheckoutService,
+    private router: Router, private route: ActivatedRoute,
+    private dialog: MatDialog, private userService: UserService
   ) { }
 
+  authService = inject(AuthService);
+
   ngOnInit() {
+    const isLoggedIn = this.authService.isLoggedIn() as boolean;
+    if (isLoggedIn) {
+      this.userService.user$.subscribe(response => {
+        this.user = response;
+      })
+    }
     this.cartService.cart$.subscribe(items => {
       this.cartItems = items;
       this.total = this.cartService.getTotal();
@@ -65,29 +78,42 @@ export class CartComponent implements OnInit {
   }
 
   openPaymentPopup() {
-    const billRequest: BillRequest = {
-      phone: '0607677381',
-      clientId: '1',
-      orderId: '1',
-      amount: this.total
-    }
-    this.checkoutService.createBill(billRequest).subscribe(
-      response => {
-        if (response) {
-          this.checkoutService.createPaymentIntent({ amount: this.total * 10, currency: 'USD', receiptEmail: 'mouad10cherrat@gmail.com' }).subscribe(
-            PaymentResponse => {
-              this.secretKey = PaymentResponse.client_secret;
-              if (this.secretKey) {
-                this.dialog.open(CheckoutComponent, {
-                  data: this.secretKey,
-                  width: '800px',
-                  height: '400px'
-                });
-              }
-            });
-        }
-      });
+    this.checkoutService.getCurrentOrder().subscribe(order => {
+      if (order) {
+        const orderId = order?.id;
+        const userId = this.user?.id
+        const phone = this.user?.phone;
+        const billRequest: BillRequest = {
+          phone: phone,
+          clientId: userId,
+          orderId: orderId,
+          amount: this.total
+        };
 
+        this.checkoutService.createBill(billRequest).subscribe(
+          response => {
+            if (response) {
+              this.checkoutService.createPaymentIntent({
+                amount: this.total * 10,
+                currency: 'USD',
+                receiptEmail: this.user?.email
+              }).subscribe(
+                PaymentResponse => {
+                  this.secretKey = PaymentResponse.client_secret;
+                  if (this.secretKey) {
+                    const secretKey = this.secretKey
+                    this.dialog.open(CheckoutComponent, {
+                      data: { secretKey, phone },
+                      width: '800px',
+                      height: '400px'
+                    });
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    });
   }
-
 }

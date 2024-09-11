@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -6,13 +6,16 @@ import { NgForm } from '@angular/forms';
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.css']
 })
-export class ContactComponent {
+export class ContactComponent implements OnInit {
   formData = {
     name: '',
     email: '',
     subject: '',
     message: ''
   };
+  ngOnInit(): void {
+    window.scrollTo(0, 0);
+  }
 
   onSubmit() {
     // Here you would typically send the form data to a server

@@ -4,8 +4,9 @@
     <div class="flex justify-between items-center py-4">
       <!-- Logo and brand name -->
       <a routerLink="/" class="flex items-center" (click)="selectOption('home')">
-        <img src="../../../assets/images/logo.png" class="h-12 w-auto mr-3" alt="Logo">
-        <span class="text-xl font-semibold">E-Commerce</span>
+        <img src="../../../assets/images/chrono-boost.png" class="h-12 w-auto mr-3" alt="Logo">
+        <span class="text-xl font-semibold"></span>
+                <span class="text-xl font-semibold">chrono-boost</span>
       </a>
 
       <!-- Mobile menu button and cart -->
@@ -55,9 +56,9 @@
           <li><a routerLink="/about-us" class="block py-2 hover:text-black"
               [ngClass]="{'text-gray-500': selectedOption !== 'about-us', 'text-black': selectedOption === 'about-us'}"
               (click)="navigateTo('/about-us')" (click)="selectOption('about-us')">ABOUT-US</a></li>
-          <li><a routerLink="/user-page" class="block py-2 hover:text-black"
+          <!-- <li><a routerLink="/user-page" class="block py-2 hover:text-black"
               [ngClass]="{'text-gray-500': selectedOption !== 'profile', 'text-black': selectedOption === 'profile'}"
-              (click)="selectOption('profile')">PROFILE</a></li>
+              (click)="selectOption('profile')">PROFILE</a></li> -->
         </ul>
               </div>
 
@@ -88,8 +89,8 @@
 
         
 <div class="relative" (mouseenter)="showCartDropdown()" (mouseleave)="hideCartDropdown()">
-            <a routerLink="/cart" class="text-gray-600 hover:text-gray-900 flex items-center"
-              (click)="toggleCartDropdown(); $event.preventDefault()">
+  <a href="#" (click)="goToCart()" class="text-gray-600 hover:text-gray-900 flex items-center"
+  (click)="toggleCartDropdown(); $event.preventDefault()">
               <i class="fas fa-shopping-basket"></i>
               <span class="ml-1">{{ cartTotal }} DH</span>
               <span
@@ -115,9 +116,8 @@
                 Total: {{ cartTotal }} DH
               </div>
               <div class="px-4 py-2">
-                <button routerLink="/cart" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW
-                  CART</button>
-                <button (click)="checkout()"
+                <button (click)="goToCart()" class="w-full px-4 py-2 bg-blue-500 text-white mb-2 hover:bg-blue-600">VIEW CART</button>
+                <button (click)="checkout()" [disabled]="cartItems.length === 0" [ngClass]="{'bg-gray-500 hover:bg-gray-500' : cartItems.length === 0, ' bg-orange-500 hover:bg-orange-600': cartItems.length !== 0 }"
                   class="w-full px-4 py-2 bg-orange-500 text-white hover:bg-orange-600">CHECKOUT</button>
               </div>
             </div>
@@ -151,7 +151,7 @@
           </div>
         </li>
         <li><a routerLink="/about-us" class="block py-2" (click)="navigateToAndCloseMenu('/about-us')">ABOUT-US</a></li>
-        <li><a routerLink="/user-page" class="block py-2" (click)="navigateToAndCloseMenu('/user-page')">PROFILE</a></li>
+        <!-- <li><a routerLink="/user-page" class="block py-2" (click)="navigateToAndCloseMenu('/user-page')">PROFILE</a></li> -->
       </ul>
 
       <!-- Mobile search -->

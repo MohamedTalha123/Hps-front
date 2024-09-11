@@ -9,7 +9,7 @@
     </div>
     <div class="details-container">
       <h1 class="product-name">{{ product.name }}</h1>
-      <p class="product-price">{{ product.price }} DH</p>
+      <p class="product-price">{{ product.price }}</p>
       <div class="quantity-selector">
         <button mat-icon-button (click)="decreaseQuantity()">
           <mat-icon>remove</mat-icon>
@@ -20,6 +20,8 @@
         </button>
       </div>
       <p *ngIf="maxQuantityError" class="error-message">You can't surpass the available quantity.</p>
+      <p *ngIf="noQuantityError" class="error-message">This product is out of stock.</p>
+
       <button mat-raised-button color="accent" (click)="addToCart()">ADD TO CART </button>
       <p class="categories">Categories: {{ product.brandName }}, {{ product.sexe }}</p>
       <div class="product-description">
