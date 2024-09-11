@@ -1,6 +1,6 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-90 backdrop-blur-sm transition-transform duration-300 ease-in-out"
      [ngClass]="{'transform -translate-y-full': isNavbarHidden}">
-  <div class="container mx-auto w-10.5/12">
+  <div class="container mx-auto w-10/12">
     <div class="flex justify-between items-center py-4">
       <!-- Logo and brand name -->
       <a routerLink="/" class="flex items-center" (click)="selectOption('home')">
@@ -39,10 +39,10 @@
               (click)="navigateTo('/products')" (click)="selectOption('products')">PRODUCTS</a></li>
           <li><a routerLink="/products" [queryParams]="{gender: 'MALE'}" class="block py-2 hover:text-black"
               [ngClass]="{'text-gray-500': selectedOption !== 'men', 'text-black': selectedOption === 'men'}"
-              (click)="navigateTo('/products', {type: 'gender', value: 'MALE'})" (click)="selectOption('men')">FOR MEN</a></li>
+              (click)="navigateTo('/products', {type: 'gender', value: 'MALE'})" (click)="selectOption('men')">MEN</a></li>
           <li><a routerLink="/products" [queryParams]="{gender: 'FEMALE'}" class="block py-2 hover:text-black"
               [ngClass]="{'text-gray-500': selectedOption !== 'women', 'text-black': selectedOption === 'women'}"
-              (click)="navigateTo('/products', {type: 'gender', value: 'FEMALE'})" (click)="selectOption('women')">FOR WOMEN</a></li>
+              (click)="navigateTo('/products', {type: 'gender', value: 'FEMALE'})" (click)="selectOption('women')">WOMEN</a></li>
           <li class="relative" (mouseenter)="showBrandsDropdown()" (mouseleave)="hideBrandsDropdown()">
             <a routerLink="/products" class="block py-2 hover:text-black"
               [ngClass]="{'text-gray-500': selectedOption !== 'brands', 'text-black': selectedOption === 'brands'}"
